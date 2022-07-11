@@ -1,0 +1,13 @@
+{{ define "articles.list" }}
+{{ template "header" }}
+<h1 class="title"> Catch up on the news! </h1>
+<p> Below is a list of articles that have been pulled</p>
+
+<ul>
+    {{ range .Items }}
+        <li><a href="{{ .Url }}">{{ .Title }}</a></li>
+    {{ end }}
+</ul>
+
+{{ template "footer" }}
+{{ end }}
