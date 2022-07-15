@@ -24,7 +24,7 @@ type Article struct {
 	Thumbnail   string     `json:"thumbnail"`
 	Description string     `json:"description"`
 	Authorname  NullString `json:"authorname"`
-	Authorimage NullString `json:"authorname"`
+	Authorimage NullString `json:"authorimage"`
 }
 
 type Discordqueue struct {
@@ -54,15 +54,15 @@ type Setting struct {
 }
 
 type Source struct {
-	ID      uuid.UUID
-	Site    string
-	Name    string
-	Source  string
-	Type    string
-	Value   NullString
-	Enabled bool
-	Url     string
-	Tags    string
+	ID      uuid.UUID  `json:"id"`
+	Site    string     `json:"site"`
+	Name    string     `json:"name"`
+	Source  string     `json:"source"`
+	Type    string     `json:"type"`
+	Value   NullString `json:"value"`
+	Enabled bool       `json:"enabled"`
+	Url     string     `json:"url"`
+	Tags    string     `json:"tags"`
 }
 
 type Subscription struct {
