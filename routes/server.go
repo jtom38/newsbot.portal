@@ -54,6 +54,8 @@ func (s *HttpServer) MountMiddleware() {
 
 func (s *HttpServer) MountRoutes() {
 	s.Router.Get("/", s.Index)
-	s.Router.Get("/articles", s.ArticleIndex)
-	s.Router.Get("/articles/list", s.ListArticle)
+
+	s.Router.Mount("/articles", s.articlesRouter())
+	s.Router.Mount("/sources", s.sourcesRouter())
+
 }

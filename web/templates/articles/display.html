@@ -1,7 +1,22 @@
 {{ define "articles.display" }}
 {{ template "header" }}
-Hello Articles!
 
+<div class="content">
+    <h1 class="title">{{.Article.Title}}</h1>
+
+    <img src="{{ .Article.Thumbnail }}">
+
+    <button class="button">
+        <a href="{{ .Article.Url }}">Source Url</a>
+    </button>
+    <br/>
+
+    <div class="block">
+        {{ .Article.Description }}
+    </div>
+
+    <h5>Tags: {{ .Article.Tags }}, {{ .Source.Tags }}</h5>
+</div>
 
 {{ template "footer" }}
 {{ end }}

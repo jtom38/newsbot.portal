@@ -1,0 +1,28 @@
+{{ define "sources.list" }}
+{{ template "header" }}
+<h1 class="title">Available Sources! </h1>
+<p>Below is a list of currently available sources to pick from.</p>
+
+
+<h2 class="title">YouTube</h2>
+
+<table class="table">
+    <tw>
+        <th>Source</th>
+        <th>Name</th>
+        <th>Link</th>
+    </tw>
+    {{ range .Items }}
+    <tr>
+        <td>{{ .Source }}</td>
+        <td>{{ .Name }}</td>
+        <td>{{ .Url }}</td>
+    </tr>
+    {{ end }}
+</table>
+
+<ul>
+</ul>
+
+{{ template "footer" }}
+{{ end }}
