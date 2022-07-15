@@ -1,11 +1,12 @@
 {{ define "articles.list" }}
 {{ template "header" }}
 <h1 class="title"> Catch up on the news! </h1>
-<p> Below is a list of articles that have been pulled</p>
+<h2 class="subtitle">Below is a list of the newest 50 articles pulled for you to view.</h2>
 
+<br>
 <ul>
     {{ range .Items }}
-        <li><a href="{{ .Url }}">{{ .Title }}</a></li>
+        <li><a href="/articles/{{.ID}}">{{ .Title }}</a></li>
     {{ end }}
 </ul>
 
