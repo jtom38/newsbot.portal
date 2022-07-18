@@ -1,14 +1,20 @@
 {{ define "articles.list" }}
-{{ template "header" }}
-<h1 class="title"> Catch up on the news! </h1>
-<h2 class="subtitle">Below is a list of the newest 50 articles pulled for you to view.</h2>
+{{ template "header" . }}
+{{ template "hero-title" . }}
 
-<br>
-<ul>
-    {{ range .Items }}
-        <li><a href="/articles/{{.ID}}">{{ .Title }}</a></li>
-    {{ end }}
-</ul>
+<div class="columns">
+    <div class="column is-one-quarter">
+        {{ template "articles.menu" . }}
+    </div>
+    <div class="column">        
+        <ul>
+            {{ range .Items }}
+                <li><a href="/articles/{{.ID}}">{{ .Title }}</a></li>
+            {{ end }}
+        </ul>
 
-{{ template "footer" }}
+    </div>
+</div>
+
+{{ template "footer" . }}
 {{ end }}

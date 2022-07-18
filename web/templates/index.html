@@ -1,5 +1,11 @@
 {{ define "index" }}
-{{ template "header" }}
-Hello World
-{{ template "footer" }}
+{{ template "header" . }}
+
+<div class="is-full" >
+    <h1 class="title">Welcome to Newsbot</h1>
+    <h2 class="subtitle">Your home to catch up on the news you care about!</h2>
+
+</div>
+
+{{ template "footer" . }}
 {{ end }}
