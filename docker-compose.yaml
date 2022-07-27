@@ -1,0 +1,14 @@
+version: "3"
+
+networks:
+  newsbot:
+    
+services:
+  web:
+    image: ghcr.io/jtom38/newsbot.portal:master
+    environment:
+      API_ADDRESS: "http://localhost:8081"
+    ports:
+      - 8080:8080
+    networks:
+      - newsbot
