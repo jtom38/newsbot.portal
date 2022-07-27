@@ -1,0 +1,17 @@
+{{ define "settings.index" }}
+{{ template "header" . }}
+{{ template "hero-title" . }}
+
+<div class="columns">
+    <div class="column is-one-quarter">
+        {{ template "settings.menu" . }}
+    </div>
+    <div class="column">
+        <p>What is a source?  A source is location that is monitored for new news to be picked up from.  Right now, Reddit, YouTube, Twitch and Final Fantasy XIV are supported at this time!</p>
+        <br>
+        <p>What is an output? Outputs are refrences to define where to send a notification when a new article has been found!  </p>
+    </div>
+</div>
+
+{{ template "footer" . }}
+{{ end }}
