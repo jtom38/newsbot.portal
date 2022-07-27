@@ -1,31 +1,13 @@
 {{ define "header" }}
 <!DOCTYPE html>
 <html>
-    <header>
+    <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
 
-        <title>{{.Title}}</title>
-    </header>
+        <title>Newsbot - {{ .Title }}</title>
+    </head>
     <body>
-        <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
-            <div class="navbar-brand">
-                <a class="navbar-item" href="/">Newsbot</a>
-            </div>
-
-            <a class="navbar-item" href="/articles">Articles</a>
-            <a class="navbar-item" href="/settings">Settings</a>
-
-            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-            </a>
-            
-        </nav>
-
-        <div class="container is-fluid">
-            <br/>
-    
+        {{ template "navbar" . }}    
 {{ end }}

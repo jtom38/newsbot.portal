@@ -1,7 +1,18 @@
 {{ define "articles.index" }}
-{{ template "header" }}
-Hello Articles!
+{{ template "header" . }}
+{{ template "hero-title" . }}
 
+<div class="columns" >
+    <div class="column is-one-quarter">
+        {{ template "articles.menu" . }}
+    </div>
+    <div class="column">
+        <ul>
+            <li><a href="/articles/list">New Items</a></li>
+            <li><a href="/articles/list">New Items</a></li>
+        </ul>
+    </div>
+</div>
 
-{{ template "footer" }}
+{{ template "footer" . }}
 {{ end }}

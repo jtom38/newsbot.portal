@@ -57,5 +57,6 @@ func (s *HttpServer) MountRoutes() {
 
 	s.Router.Mount("/articles", s.articlesRouter())
 	s.Router.Mount("/sources", s.sourcesRouter())
+	//s.Router.Mount("/settings/outputs/discordwebhooks", )
 
 }

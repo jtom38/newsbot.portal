@@ -1,0 +1,33 @@
+{{ define "articles.list-sources" }}
+{{ template "header" . }}
+{{ template "hero-title" . }}
+
+<div class="columns">
+    <div class="column is-one-quarter">
+        {{ template "articles.menu" . }}
+    </div>
+    <div class="column">        
+        <table class="table">
+            <tbody>
+                {{ range .Items }}
+                <tr>
+                    <th><a href="/articles/sources/{{ .Item.ID }}/list">Articles</a></th>
+                    <th>{{ .Item.Source }}</th>
+                    <th>{{ .Item.Name }}</th>
+                    <th>
+                        <div class="tags are-medium">
+                        {{ range .Topics }}
+                            <span class="tag">{{ . }}</span>
+                        {{ end }}
+                        </div>
+                    </th>
+                </tr>
+                {{ end}}
+            </tbody>
+        </table>
+        <br/>
+    </div>
+</div>
+
+{{ template "footer" . }}
+{{ end }}
