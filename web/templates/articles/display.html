@@ -9,18 +9,20 @@
     <div class="column">
         <div class="content">
             <img src="{{ .Article.Thumbnail }}">
-
+            <br/>
+            <div class="block">
+                {{ .Article.Description }}
+            </div>
+            
             <button class="button">
-                <a href="{{ .Article.Url }}">Source Url</a>
+                <a href="{{ .Article.Url }}" target="_blank" rel="noopener noreferrer">Source Url</a>
             </button>
             <br/>
             <br/>
 
-            <div class="block">
-                {{ .Article.Description }}
-            </div>
 
             <div class="tags are-medium">
+                <p>Topics: </p>
             {{ range .Topics }}
                 <span class="tag">{{ . }}</span>
             {{ end }}

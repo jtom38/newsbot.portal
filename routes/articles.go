@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -29,9 +30,15 @@ func (s *HttpServer) articlesRouter() http.Handler {
 	return r
 }
 
+type ErrParam struct {
+	Title string
+	Code int
+	Error error
+}
+
 // This struct contains extra details not exposed by the API
 type ApiSourceOverload struct {
-	Item *api.Source
+	Item api.Source
 	Topics []string
 }
 
@@ -68,25 +75,38 @@ func (s *HttpServer) DisplayArticleById(w http.ResponseWriter, r *http.Request) 
 	id := chi.URLParam(r, "ID")
 	uuid, err := uuid.Parse(id)
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Invalid ID",
+			Code: 500,
+			Error: err,
+		})
 		return
 	}
 	
 	article, err  := s.api.GetArticle(uuid)
 	if err != nil {
-		w.Write([]byte(err.Error()))
-		return
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Invalid Article ID",
+			Code: 404,
+			Error: err,
+		})
+		return 
 	}
 	param.Article = article
 	param.Title = article.Title
-	param.Subtitle = "placeholder"
-
+	
 	source, err := s.api.GetSourceById(article.Sourceid)
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Invalid Source ID",
+			Code: 500,
+			Error: err,
+		})
 		return
 	}
+
 	param.Source = source
+	param.Subtitle = fmt.Sprintf("%v - %v", strings.ToUpper(source.Name), strings.ToUpper(source.Source))
 
 	var topics []string
 	articleTags := strings.Split(article.Tags, ",")
@@ -114,7 +134,7 @@ type ListArticleParam struct {
 func (s *HttpServer) ListArticles(w http.ResponseWriter, r *http.Request) {
 	param := ListArticleParam{
 		Title: "Newest Articles",
-		Subtitle: "Below is a list of the newest 50 articles pulled for you to view.",
+		Subtitle: "Below is a list of the newest articles pulled for you to view.",
 	}
 
 	items, err  := s.api.ListArticles()
@@ -135,7 +155,7 @@ func (s *HttpServer) ListArticles(w http.ResponseWriter, r *http.Request) {
 func (s *HttpServer) ListArticlesBySource(w http.ResponseWriter, r *http.Request) {
 	param := ListArticleParam{
 		Title: "Newest Articles",
-		Subtitle: "Below is a list of the newest 50 articles pulled for you to view.",
+		Subtitle: "Below is a list of the newest articles pulled for you to view.",
 	}
 
 	id := chi.URLParam(r, "ID")
@@ -172,18 +192,25 @@ func (s *HttpServer) ListArticleSources(w http.ResponseWriter, r *http.Request) 
 		Subtitle: "Below are the enabled news sources to pick from.",
 	}
 
-	items, err  := s.api.ListSources()
+	records, err  := s.api.ListSources()
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Failed to fetch sources",
+			Code: 500,
+			Error: err,
+		})
+		return
 	}
 
 	var Items []ApiSourceOverload
-	for _, item := range *items {
+	for _, item := range *records {
 		var Topics []string
+		var details ApiSourceOverload
+
 		Topics = append(Topics, s.generateTopics(item.Tags)...)
 
-		details := ApiSourceOverload{
-			Item: &item,
+		details = ApiSourceOverload{
+			Item: item,
 			Topics: Topics,
 		}
 		Items = append(Items, details )
