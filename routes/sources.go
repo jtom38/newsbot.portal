@@ -35,7 +35,14 @@ type ListSourcesParam struct {
 	// Defines what source is currently active.
 	// Used for routing
 	Source string
-	Items *[]api.Source
+	Items *[]ListSourcesDetailsParam
+}
+
+// This struct gives more details on the source so the template can act more.
+type ListSourcesDetailsParam struct {
+	Enabled bool
+	Disabled bool
+	Item *api.Source
 }
 
 func (s *HttpServer) DeleteSourceById(w http.ResponseWriter, r *http.Request) {
@@ -86,6 +93,7 @@ func (s *HttpServer) DeleteSourceById(w http.ResponseWriter, r *http.Request) {
 //
 // /settings/sources/reddit
 func (s *HttpServer) SourcesRedditIndex(w http.ResponseWriter, r *http.Request) {
+	var details []ListSourcesDetailsParam
 	param := ListSourcesParam{
 		Title: "Reddit Sources",
 		Subtitle: "Here are the available sources.",
@@ -96,7 +104,23 @@ func (s *HttpServer) SourcesRedditIndex(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		panic(err)
 	}
-	param.Items = items
+
+	for _, item := range *items {
+		var i ListSourcesDetailsParam
+
+		if !item.Enabled {
+			i.Disabled = true
+			i.Enabled = false
+		} else {
+			i.Disabled = false
+			i.Enabled = true
+		}
+
+		i.Item = &item
+
+		details = append(details, i)
+	}
+	param.Items = &details
 
 	w.Header().Add("Content Type", "text/html")
 	err = s.templates.ExecuteTemplate(w, "sources.list", param)
@@ -106,6 +130,7 @@ func (s *HttpServer) SourcesRedditIndex(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *HttpServer) SourcesRedditNewDisplay(w http.ResponseWriter, r *http.Request) {
+	var details []ListSourcesDetailsParam
 	param := ListSourcesParam{
 		Title: "Reddit Sources",
 		Subtitle: "Here are the available sources.",
@@ -116,7 +141,23 @@ func (s *HttpServer) SourcesRedditNewDisplay(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		panic(err)
 	}
-	param.Items = items
+	
+	for _, item := range *items {
+		var i ListSourcesDetailsParam
+
+		if !item.Enabled {
+			i.Disabled = true
+			i.Enabled = false
+		} else {
+			i.Disabled = false
+			i.Enabled = true
+		}
+
+		i.Item = &item
+
+		details = append(details, i)
+	}
+	param.Items = &details
 
 	w.Header().Add("Content Type", "text/html")
 	err = s.templates.ExecuteTemplate(w, "sources.new.reddit", param)
@@ -173,6 +214,7 @@ func (s *HttpServer) SourcesRedditNewPost(w http.ResponseWriter, r *http.Request
 //
 // /settings/sources/youtube
 func (s *HttpServer) SourcesYouTubeIndex(w http.ResponseWriter, r *http.Request) {
+	var details []ListSourcesDetailsParam
 	param := ListSourcesParam{
 		Title: "YouTube Sources",
 		Subtitle: "Here are the available sources.",
@@ -183,7 +225,23 @@ func (s *HttpServer) SourcesYouTubeIndex(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		panic(err)
 	}
-	param.Items = items
+	
+	for _, item := range *items {
+		var i ListSourcesDetailsParam
+
+		if !item.Enabled {
+			i.Disabled = true
+			i.Enabled = false
+		} else {
+			i.Disabled = false
+			i.Enabled = true
+		}
+
+		i.Item = &item
+
+		details = append(details, i)
+	}
+	param.Items = &details
 
 	w.Header().Add("Content Type", "text/html")
 	err = s.templates.ExecuteTemplate(w, "sources.list", param)
@@ -196,6 +254,7 @@ func (s *HttpServer) SourcesYouTubeIndex(w http.ResponseWriter, r *http.Request)
 //
 // /settings/sources/twitch
 func (s *HttpServer) SourcesTwitchIndex(w http.ResponseWriter, r *http.Request) {
+	var details []ListSourcesDetailsParam
 	param := ListSourcesParam{
 		Title: "Twitch Sources",
 		Subtitle: "Here are the available sources.",
@@ -206,7 +265,23 @@ func (s *HttpServer) SourcesTwitchIndex(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		panic(err)
 	}
-	param.Items = items
+	
+	for _, item := range *items {
+		var i ListSourcesDetailsParam
+
+		if !item.Enabled {
+			i.Disabled = true
+			i.Enabled = false
+		} else {
+			i.Disabled = false
+			i.Enabled = true
+		}
+
+		i.Item = &item
+
+		details = append(details, i)
+	}
+	param.Items = &details
 
 	w.Header().Add("Content Type", "text/html")
 	err = s.templates.ExecuteTemplate(w, "sources.list", param)
@@ -219,6 +294,7 @@ func (s *HttpServer) SourcesTwitchIndex(w http.ResponseWriter, r *http.Request) 
 //
 // /settings/sources/ffxiv
 func (s *HttpServer) SourcesFfxivIndex(w http.ResponseWriter, r *http.Request) {
+	var details []ListSourcesDetailsParam
 	param := ListSourcesParam{
 		Title: "Final Fantasy XIV Sources",
 		Subtitle: "Here are the available sources.",
@@ -229,7 +305,23 @@ func (s *HttpServer) SourcesFfxivIndex(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	param.Items = items
+	
+	for _, item := range *items {
+		var i ListSourcesDetailsParam
+
+		if !item.Enabled {
+			i.Disabled = true
+			i.Enabled = false
+		} else {
+			i.Disabled = false
+			i.Enabled = true
+		}
+
+		i.Item = &item
+
+		details = append(details, i)
+	}
+	param.Items = &details
 
 	w.Header().Add("Content Type", "text/html")
 	err = s.templates.ExecuteTemplate(w, "sources.list", param)
@@ -241,12 +333,29 @@ func (s *HttpServer) SourcesFfxivIndex(w http.ResponseWriter, r *http.Request) {
 
 func (s *HttpServer) ListSources(w http.ResponseWriter, r *http.Request) {
 	param := ListSourcesParam{}
+	var details []ListSourcesDetailsParam
 
 	items, err  := s.api.Sources.List()
 	if err != nil {
 		panic(err)
 	}
-	param.Items = items
+
+	for _, item := range *items {
+		var i ListSourcesDetailsParam
+
+		if !item.Enabled {
+			i.Disabled = true
+			i.Enabled = false
+		} else {
+			i.Disabled = false
+			i.Enabled = true
+		}
+
+		i.Item = &item
+
+		details = append(details, i)
+	}
+	param.Items = &details
 
 	w.Header().Add("Content Type", "text/html")
 	err = s.templates.ExecuteTemplate(w, "sources.list", param)
@@ -256,6 +365,7 @@ func (s *HttpServer) ListSources(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *HttpServer) GetSourceById(w http.ResponseWriter, r *http.Request) {
+	var details []ListSourcesDetailsParam
 	param := ListSourcesParam{}
 
 	items, err  := s.api.Sources.List()
@@ -263,7 +373,23 @@ func (s *HttpServer) GetSourceById(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	param.Items = items
+	
+	for _, item := range *items {
+		var i ListSourcesDetailsParam
+
+		if !item.Enabled {
+			i.Disabled = true
+			i.Enabled = false
+		} else {
+			i.Disabled = false
+			i.Enabled = true
+		}
+
+		i.Item = &item
+
+		details = append(details, i)
+	}
+	param.Items = &details
 
 	w.Header().Add("Content Type", "text/html")
 	err = s.templates.ExecuteTemplate(w, "sources.list", param)
