@@ -83,7 +83,7 @@ func (s *HttpServer) DisplayArticleById(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	
-	article, err  := s.api.GetArticle(uuid)
+	article, err  := s.api.Articles.Get(uuid)
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Invalid Article ID",
@@ -95,7 +95,7 @@ func (s *HttpServer) DisplayArticleById(w http.ResponseWriter, r *http.Request) 
 	param.Article = article
 	param.Title = article.Title
 	
-	source, err := s.api.GetSourceById(article.Sourceid)
+	source, err := s.api.Sources.GetById(article.Sourceid)
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Invalid Source ID",
@@ -137,7 +137,7 @@ func (s *HttpServer) ListArticles(w http.ResponseWriter, r *http.Request) {
 		Subtitle: "Below is a list of the newest articles pulled for you to view.",
 	}
 
-	items, err  := s.api.ListArticles()
+	items, err  := s.api.Articles.List()
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	}
@@ -165,7 +165,7 @@ func (s *HttpServer) ListArticlesBySource(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	items, err := s.api.ListArticlesBySourceId(uuid)
+	items, err := s.api.Articles.ListBySourceId(uuid)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	}
@@ -192,7 +192,7 @@ func (s *HttpServer) ListArticleSources(w http.ResponseWriter, r *http.Request) 
 		Subtitle: "Below are the enabled news sources to pick from.",
 	}
 
-	records, err  := s.api.ListSources()
+	records, err  := s.api.Sources.List()
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Failed to fetch sources",

@@ -9,19 +9,27 @@ import (
 	"github.com/google/uuid"
 )
 
-type ApiClient struct {
+type ArticlesApiClient struct {
 	endpoint string
 }
 
-func New(Endpoint string) (*ApiClient) {
+func New(Endpoint string) *ApiClient {
 	c := ApiClient{
-		endpoint:  Endpoint,
+		endpoint: Endpoint,
+
+		Articles: ArticlesApiClient{
+			endpoint: Endpoint,
+		},
+
+		Sources: SourcesApiClient{
+			endpoint:  Endpoint,
+		},
 	}
 
 	return &c
 }
 
-func (c *ApiClient) ListArticles() (*[]Article, error) {
+func (c *ArticlesApiClient) List() (*[]Article, error) {
 	var items []Article
 
 	uri := fmt.Sprintf("%v/api/articles", c.endpoint)
@@ -44,9 +52,9 @@ func (c *ApiClient) ListArticles() (*[]Article, error) {
 }
 
 // Returns a single article based on its iD
-// 
+//
 // /api/articles/{id}
-func (c *ApiClient) GetArticle(ID uuid.UUID) (*Article, error) {
+func (c *ArticlesApiClient) Get(ID uuid.UUID) (*Article, error) {
 	var items Article
 
 	uri := fmt.Sprintf("%v/api/articles/%v", c.endpoint, ID)
@@ -68,7 +76,7 @@ func (c *ApiClient) GetArticle(ID uuid.UUID) (*Article, error) {
 	return &items, nil
 }
 
-func (c *ApiClient) ListArticlesBySourceId(ID uuid.UUID) (*[]Article, error) {
+func (c *ArticlesApiClient) ListBySourceId(ID uuid.UUID) (*[]Article, error) {
 	var items []Article
 
 	uri := fmt.Sprintf("%v/api/articles/by/sourceid?id=%v", c.endpoint, ID)

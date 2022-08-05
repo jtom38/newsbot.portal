@@ -5,18 +5,23 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	"github.com/jtom38/newsbot/portal/api"
 )
 
 func (s *HttpServer) sourcesRouter() http.Handler {
 	r := chi.NewRouter()
 
-	r.Get("/", s.SourcesIndex)
+	//r.Get("/", s.SourcesIndex)
+	r.Post("/delete", s.DeleteSourceById)
+	
 	r.Get("/reddit", s.SourcesRedditIndex)
 	r.Get("/reddit/new", s.SourcesRedditNewDisplay)
 	r.Post("/reddit/new/post", s.SourcesRedditNewPost)
 
-	r.Get("/youtube", s.SourcesyYouTubeIndex)
+	r.Get("/youtube", s.SourcesYouTubeIndex)
+	//r.Post("/youtube/new/post")
+
 	r.Get("/twitch", s.SourcesTwitchIndex)
 	r.Get("/ffxiv", s.SourcesFfxivIndex)
 
@@ -33,10 +38,49 @@ type ListSourcesParam struct {
 	Items *[]api.Source
 }
 
-// /settings/sources
-func (s *HttpServer) SourcesIndex(w http.ResponseWriter, r *http.Request) {
+func (s *HttpServer) DeleteSourceById(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Form Error",
+			Code: 500,
+			Error: err,
+		})
+		return 
+	}
+
+	id := r.Form.Get("id")
+	if id == "" {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Missing Source ID",
+			Code: 500,
+			Error: err,
+		})
+		return 
+	}
+
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Invalid Source ID",
+			Code: 500,
+			Error: err,
+		})
+		return 
+	}
+
+	err = s.api.Sources.Delete(uid)
+	if err != nil {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Failed to delete the Source",
+			Code: 500,
+			Error: err,
+		})
+		return 
+	}
 
 }
+
 
 // This displays all the reddit sources known to the app.
 //
@@ -48,7 +92,7 @@ func (s *HttpServer) SourcesRedditIndex(w http.ResponseWriter, r *http.Request) 
 		Source: "reddit",
 	}
 
-	items, err  := s.api.ListSourcesBySource("reddit")
+	items, err  := s.api.Sources.ListBySource("reddit")
 	if err != nil {
 		panic(err)
 	}
@@ -68,7 +112,7 @@ func (s *HttpServer) SourcesRedditNewDisplay(w http.ResponseWriter, r *http.Requ
 		Source: "reddit",
 	}
 
-	items, err  := s.api.ListSourcesBySource("reddit")
+	items, err  := s.api.Sources.ListBySource("reddit")
 	if err != nil {
 		panic(err)
 	}
@@ -104,7 +148,7 @@ func (s *HttpServer) SourcesRedditNewPost(w http.ResponseWriter, r *http.Request
 	}
 
 	uri := fmt.Sprintf("https://reddit.com/r/%v", name)
-	err = s.api.SourceNewReddit(name, uri)
+	err = s.api.Sources.NewReddit(name, uri)
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Failed to add new Reddit source",
@@ -115,7 +159,10 @@ func (s *HttpServer) SourcesRedditNewPost(w http.ResponseWriter, r *http.Request
 	}
 
 	w.Header().Add("Content Type", "text/html")
-	err = s.templates.ExecuteTemplate(w, "sources.list", nil)
+	err = s.templates.ExecuteTemplate(w, "sources.new.posted", HttpParam{
+		Title: "Source Added",
+		Subtitle: "It will be reviewed on the next collection",
+	})
 	if err != nil {
 		panic(err)
 	}
@@ -125,14 +172,14 @@ func (s *HttpServer) SourcesRedditNewPost(w http.ResponseWriter, r *http.Request
 // This displays all the youtube sources known to the app.
 //
 // /settings/sources/youtube
-func (s *HttpServer) SourcesyYouTubeIndex(w http.ResponseWriter, r *http.Request) {
+func (s *HttpServer) SourcesYouTubeIndex(w http.ResponseWriter, r *http.Request) {
 	param := ListSourcesParam{
 		Title: "YouTube Sources",
 		Subtitle: "Here are the available sources.",
 		Source: "YouTube",
 	}
 
-	items, err  := s.api.ListSourcesBySource("youtube")
+	items, err  := s.api.Sources.ListBySource("youtube")
 	if err != nil {
 		panic(err)
 	}
@@ -155,7 +202,7 @@ func (s *HttpServer) SourcesTwitchIndex(w http.ResponseWriter, r *http.Request) 
 		Source: "twitch",
 	}
 
-	items, err  := s.api.ListSourcesBySource("twitch")
+	items, err  := s.api.Sources.ListBySource("twitch")
 	if err != nil {
 		panic(err)
 	}
@@ -178,7 +225,7 @@ func (s *HttpServer) SourcesFfxivIndex(w http.ResponseWriter, r *http.Request) {
 		Source: "ffxiv",
 	}
 
-	items, err  := s.api.ListSourcesBySource("ffxiv")
+	items, err  := s.api.Sources.ListBySource("ffxiv")
 	if err != nil {
 		panic(err)
 	}
@@ -195,7 +242,7 @@ func (s *HttpServer) SourcesFfxivIndex(w http.ResponseWriter, r *http.Request) {
 func (s *HttpServer) ListSources(w http.ResponseWriter, r *http.Request) {
 	param := ListSourcesParam{}
 
-	items, err  := s.api.ListSources()
+	items, err  := s.api.Sources.List()
 	if err != nil {
 		panic(err)
 	}
@@ -211,7 +258,7 @@ func (s *HttpServer) ListSources(w http.ResponseWriter, r *http.Request) {
 func (s *HttpServer) GetSourceById(w http.ResponseWriter, r *http.Request) {
 	param := ListSourcesParam{}
 
-	items, err  := s.api.ListSources()
+	items, err  := s.api.Sources.List()
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		return

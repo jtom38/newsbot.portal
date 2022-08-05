@@ -6,6 +6,13 @@ import (
 	"github.com/google/uuid"
 )
 
+type ApiClient struct {
+	endpoint string
+
+	Articles ArticlesApiClient
+	Sources SourcesApiClient
+}
+
 type NullString struct {
 	String string `json:"string"`
 	Valid  bool   `json:"valid"`
