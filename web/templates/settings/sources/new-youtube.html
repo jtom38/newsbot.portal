@@ -1,4 +1,4 @@
-{{ define "sources.new.reddit" }}
+{{ define "sources.new.youtube" }}
 {{ template "header" . }}
 {{ template "hero-title" . }}
 
@@ -6,12 +6,11 @@
     <div class="column is-one-quarter m-3">
         {{ template "settings.menu" . }}
     </div>
-    
     <div class="column m-3">  
 
-        <form action="/settings/sources/reddit/new/post" method="post">
+        <form action="/settings/sources/youtube/new/post" method="post">
             Name: <input type="text" name="name" placeholder="dadjokes">
-            <input type="submit" value="submit" onclick="window.location.href = '/settings/sources/{{ .Source }}'" >
+            <input type="submit" value="submit">
         </form>
         
     </div>
