@@ -1,0 +1,17 @@
+{{ define "sources.new.posted" }}
+{{ template "header" . }}
+{{ template "hero-title" . }}
+
+<div class="columns">
+    <div class="column is-one-quarter m-3">
+        {{ template "settings.menu" . }}
+    </div>
+    <div class="column m-3">  
+
+        <p>Your request was sent off and has been processed.  Please go back to the settings to continue.</p>
+        
+    </div>
+</div>
+
+{{ template "footer" . }}
+{{ end }}

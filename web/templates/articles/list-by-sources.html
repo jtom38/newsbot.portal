@@ -1,5 +1,5 @@
 <!--Displays the articles based on the ID value given.-->
-{{ define "articles.listBySource" }}
+{{ define "articles.listBySource-old" }}
 {{ template "header" . }}
 {{ template "hero-title" . }}
 
@@ -14,7 +14,9 @@
 
         <ul>
             {{ range .Items }}
+                {{ if .Enabled }}
                 <li><a href="{{ .Url }}">{{ .Title }}</a></li>
+                {{ end }}
             {{ end }}
         </ul>
     </div>

@@ -6,13 +6,29 @@
     <div class="column is-one-quarter">
         {{ template "articles.menu" . }}
     </div>
-    <div class="column">        
+    <div class="column">
+        <br/>      
         <ul>
             {{ range .Items }}
-                <li><a href="/articles/{{.ID}}">{{ .Title }}</a></li>
+            <article class="media">
+                <figure class="media-left">
+                  <p class="image is-64x64">
+                    <img src="{{ .Thumbnail }}">
+                  </p>
+                </figure>
+                <div class="media-content">
+                  <div class="content">
+                    <p>
+                      <a href="/articles/{{ .ID }}"><strong>{{ .Title }}</strong></a>
+                      <small></small> <br>
+                      <small>{{ .Pubdate }}</small> <br>
+                      placeholder
+                    </p>
+                  </div>
+                </div>
+              </article>
             {{ end }}
         </ul>
-
     </div>
 </div>
 

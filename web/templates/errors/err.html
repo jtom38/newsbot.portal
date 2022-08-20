@@ -1,0 +1,16 @@
+{{ define "err" }}
+{{ template "header" . }}
+<section class="hero is-primary is-centered is-narrow has-text-centered">
+    <div class="hero-body">
+        <p class="title">{{ .Title }}</p>
+        <p class="subtitle">This does not look right... better head back!</p>
+    </div>
+</section>
+
+<div class="container">
+    <div class="notification">
+        Error Message: {{ .Error }}
+    </div>
+  </div>
+
+{{ end }}

@@ -1,0 +1,30 @@
+{{ define "settings.menu" }}
+<aside class="menu">
+    <p class="menu-label">Sources</p>
+    <ul class="menu-list">
+        <li><a href="/settings/sources/reddit">Reddit</a></li>
+        <li><a href="/settings/sources/youtube">YouTube</a></li>
+        <li><a href="/settings/sources/twitch">Twitch</a></li>
+        <li><a href="/settings/sources/ffxiv">FFXIV</a></li>
+        <!--
+        <li><a href="/settings/sources/twitter">Twitter</a></li>
+        <li><a href="/settings/sources/rss">Rss</a></li>
+        -->
+    </ul>
+
+    <p class="menu-label">Outputs</p>
+    <ul class="menu-list">
+        <li><a href="/settings/outputs/dwh/list">Discord Web Hooks</a></li>
+        <!--
+        <li><a href="/settings/outputs/swh/list">Slack Web Hooks</a></li>
+        <li><a href="/settings/outputs/mtwh/list">Microsoft Teams Web Hooks</a></li>
+        -->
+    </ul>
+
+    <p class="menu-label">Subscriptions</p>
+    <ul class="menu-list">
+        <li><a href="/settings/subscriptions/list">list</a></li>
+    </ul>
+  </ul>
+</aside>
+{{ end }}

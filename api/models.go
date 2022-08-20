@@ -6,6 +6,8 @@ import (
 	"github.com/google/uuid"
 )
 
+
+
 type NullString struct {
 	String string `json:"string"`
 	Valid  bool   `json:"valid"`

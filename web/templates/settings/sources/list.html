@@ -1,28 +1,59 @@
 {{ define "sources.list" }}
 {{ template "header" . }}
-<h1 class="title">Available Sources! </h1>
-<p>Below is a list of currently available sources to pick from.</p>
+{{ template "hero-title" . }}
 
+<div class="columns">
+    <div class="column is-one-quarter m-3">
+        {{ template "settings.menu" . }}
+    </div>
+    <div class="column m-3">
 
-<h2 class="title">YouTube</h2>
+        <nav class="level">
+            <p class="level-item has-text-centered">
+                <a class="button link has-info" href="/settings/sources/{{ .Source }}/new">New</a>
+            </p>
+        </nav>
 
-<table class="table">
-    <tw>
-        <th>Source</th>
-        <th>Name</th>
-        <th>Link</th>
-    </tw>
-    {{ range .Items }}
-    <tr>
-        <td>{{ .Source }}</td>
-        <td>{{ .Name }}</td>
-        <td>{{ .Url }}</td>
-    </tr>
-    {{ end }}
-</table>
+        <table class="table is-striped is-fullwidth">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Enabled</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            {{ range .Items }}
+            <tr>
+                <td>{{ .Item.Name }}</td>
+                <td><strong>{{ .Item.Enabled }}</strong></td>
+                <td>
+                    <div class="field is-grouped">
+                        {{ if .Enabled }}
+                        <form target="_blank" action="/settings/sources/disable?id={{ .Item.ID }}" method="post">    
+                            <input class="button" type="submit" value="Disable">
+                        </form>
 
-<ul>
-</ul>
+                        <form  action="/settings/sources/enable?id={{ .Item.ID }}" method="post">
+                            <input class="button" type="submit" value="Enable" disabled>
+                        </form>
+                        {{ end }}
+
+                        {{ if .Disabled }}
+                        <form target="_blank" action="/settings/sources/disable?id={{ .Item.ID }}" method="post">
+                            <input class="button" type="submit" value="Disable" disabled>
+                        </form>
+
+                        <form action="/settings/sources/enable?id={{ .Item.ID }}" method="post">
+                            <input class="button" type="submit" value="Enable" >
+                        </form>
+                        {{ end }}
+                    </div>
+                </td>
+            </tr>
+            {{ end }}
+        </table>
+    </div>
+</div>
 
 {{ template "footer" . }}
 {{ end }}

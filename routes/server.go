@@ -3,6 +3,7 @@ package routes
 import (
 	"context"
 	"html/template"
+	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -11,6 +12,7 @@ import (
 
 type HttpParam struct {
 	Title string
+	Subtitle string
 }
 
 type HttpServer struct {
@@ -56,7 +58,19 @@ func (s *HttpServer) MountRoutes() {
 	s.Router.Get("/", s.Index)
 
 	s.Router.Mount("/articles", s.articlesRouter())
-	s.Router.Mount("/sources", s.sourcesRouter())
+	s.Router.Mount("/settings", s.settingsRouter())
+	s.Router.Mount("/settings/sources", s.sourcesRouter())
 	//s.Router.Mount("/settings/outputs/discordwebhooks", )
 
+}
+
+func (s *HttpServer) Index(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content Type", "text/html")
+	err := s.templates.ExecuteTemplate(w, "index", HttpParam{
+		Title: "Welcome to Newsbot!",
+		Subtitle: "The location for your news!",
+	})
+	if err != nil {
+		panic(err)
+	}
 }
