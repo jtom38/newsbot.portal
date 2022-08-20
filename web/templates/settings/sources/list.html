@@ -33,7 +33,7 @@
                             <input class="button" type="submit" value="Disable">
                         </form>
 
-                        <form target="_blank" action="/settings/sources/enable?id={{ .Item.ID }}" method="post">
+                        <form  action="/settings/sources/enable?id={{ .Item.ID }}" method="post">
                             <input class="button" type="submit" value="Enable" disabled>
                         </form>
                         {{ end }}
@@ -43,7 +43,7 @@
                             <input class="button" type="submit" value="Disable" disabled>
                         </form>
 
-                        <form target="_blank" action="/settings/sources/enable?id={{ .Item.ID }}" method="post">
+                        <form action="/settings/sources/enable?id={{ .Item.ID }}" method="post">
                             <input class="button" type="submit" value="Enable" >
                         </form>
                         {{ end }}

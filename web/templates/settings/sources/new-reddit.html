@@ -9,9 +9,16 @@
     
     <div class="column m-3">  
 
-        <form action="/settings/sources/reddit/new/post" method="post">
-            Name: <input type="text" name="name" placeholder="dadjokes">
-            <input type="submit" value="submit" onclick="window.location.href = '/settings/sources/{{ .Source }}'" >
+        <form action="/settings/sources/reddit/new" method="post">
+
+            <div class="field">
+                <label class="label">Subredit Name</label>
+                <div class="control">
+                    <input class="input" type="text" name="name" placeholder="dadjokes">
+                </div>
+            </div>
+
+            <input class="button" type="submit" value="submit" onclick="window.location.href = '/settings/sources/{{ .Source }}'" >
         </form>
         
     </div>

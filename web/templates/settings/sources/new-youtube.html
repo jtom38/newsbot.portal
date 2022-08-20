@@ -7,10 +7,24 @@
         {{ template "settings.menu" . }}
     </div>
     <div class="column m-3">  
+    
+        <form action="/settings/sources/youtube/new" method="post">
 
-        <form action="/settings/sources/youtube/new/post" method="post">
-            Name: <input type="text" name="name" placeholder="dadjokes">
-            <input type="submit" value="submit">
+            <div class="field">
+                <label class="label">Name</label>
+                <div class="control">
+                    <input class="input" type="text" name="name" placeholder="GameGrumps">
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">URL</label>
+                <div class="control">
+                    <input class="input" type="text" name="url" placeholder="https://www.youtube.com/user/GameGrumps">
+                </div>
+            </div>
+
+            <input class="button" type="submit" value="submit">
         </form>
         
     </div>
