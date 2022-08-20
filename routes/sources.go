@@ -14,13 +14,16 @@ func (s *HttpServer) sourcesRouter() http.Handler {
 
 	//r.Get("/", s.SourcesIndex)
 	r.Post("/delete", s.DeleteSourceById)
-	
+	r.Post("/disable", s.DisableSourceById)
+	r.Post("/enable", s.EnableSourceById)
+
 	r.Get("/reddit", s.SourcesRedditIndex)
 	r.Get("/reddit/new", s.SourcesRedditNewDisplay)
-	r.Post("/reddit/new/post", s.SourcesRedditNewPost)
+	r.Post("/reddit/new", s.SourcesRedditNewPost)
 
 	r.Get("/youtube", s.SourcesYouTubeIndex)
-	//r.Post("/youtube/new/post")
+	r.Get("/youtube/new", s.SourcesYouTubeNewForm)
+	r.Post("/youtube/new", s.SourcesYouTubeNewPost)
 
 	r.Get("/twitch", s.SourcesTwitchIndex)
 	r.Get("/ffxiv", s.SourcesFfxivIndex)
@@ -29,65 +32,154 @@ func (s *HttpServer) sourcesRouter() http.Handler {
 }
 
 type ListSourcesParam struct {
-	Title string
+	Title    string
 	Subtitle string
 
 	// Defines what source is currently active.
 	// Used for routing
 	Source string
-	Items *[]ListSourcesDetailsParam
+	Items  *[]ListSourcesDetailsParam
 }
 
 // This struct gives more details on the source so the template can act more.
 type ListSourcesDetailsParam struct {
-	Enabled bool
+	Enabled  bool
 	Disabled bool
-	Item *api.Source
+	Item     api.Source
 }
 
+// /settings/sources/delete?id
 func (s *HttpServer) DeleteSourceById(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Form Error",
-			Code: 500,
+			Code:  500,
 			Error: err,
 		})
-		return 
+		return
 	}
 
 	id := r.Form.Get("id")
 	if id == "" {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Missing Source ID",
-			Code: 500,
+			Code:  500,
 			Error: err,
 		})
-		return 
+		return
 	}
 
 	uid, err := uuid.Parse(id)
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Invalid Source ID",
-			Code: 500,
+			Code:  500,
 			Error: err,
 		})
-		return 
+		return
 	}
 
 	err = s.api.Sources.Delete(uid)
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Failed to delete the Source",
-			Code: 500,
+			Code:  500,
 			Error: err,
 		})
-		return 
+		return
 	}
-
 }
 
+// /settings/sources/enable?id
+func (s *HttpServer) EnableSourceById(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Form Error",
+			Code:  500,
+			Error: err,
+		})
+		return
+	}
+
+	id := r.Form.Get("id")
+	if id == "" {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Missing Source ID",
+			Code:  500,
+			Error: err,
+		})
+		return
+	}
+
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Invalid Source ID",
+			Code:  500,
+			Error: err,
+		})
+		return
+	}
+
+	err = s.api.Sources.Enable(uid)
+	if err != nil {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Failed to delete the Source",
+			Code:  500,
+			Error: err,
+		})
+		return
+	}
+
+	s.templates.ExecuteTemplate(w, "settings.index", nil)
+}
+
+// /settings/sources/disable?id
+func (s *HttpServer) DisableSourceById(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Form Error",
+			Code:  500,
+			Error: err,
+		})
+		return
+	}
+
+	id := r.Form.Get("id")
+	if id == "" {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Missing Source ID",
+			Code:  500,
+			Error: err,
+		})
+		return
+	}
+
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Invalid Source ID",
+			Code:  500,
+			Error: err,
+		})
+		return
+	}
+
+	err = s.api.Sources.Disable(uid)
+	if err != nil {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Failed to delete the Source",
+			Code:  500,
+			Error: err,
+		})
+		return
+	}
+
+	s.templates.ExecuteTemplate(w, "settings.index", nil)
+}
 
 // This displays all the reddit sources known to the app.
 //
@@ -95,12 +187,12 @@ func (s *HttpServer) DeleteSourceById(w http.ResponseWriter, r *http.Request) {
 func (s *HttpServer) SourcesRedditIndex(w http.ResponseWriter, r *http.Request) {
 	var details []ListSourcesDetailsParam
 	param := ListSourcesParam{
-		Title: "Reddit Sources",
+		Title:    "Reddit Sources",
 		Subtitle: "Here are the available sources.",
-		Source: "reddit",
+		Source:   "reddit",
 	}
 
-	items, err  := s.api.Sources.ListBySource("reddit")
+	items, err := s.api.Sources.ListBySource("reddit")
 	if err != nil {
 		panic(err)
 	}
@@ -116,7 +208,7 @@ func (s *HttpServer) SourcesRedditIndex(w http.ResponseWriter, r *http.Request) 
 			i.Enabled = true
 		}
 
-		i.Item = &item
+		i.Item = item
 
 		details = append(details, i)
 	}
@@ -132,16 +224,16 @@ func (s *HttpServer) SourcesRedditIndex(w http.ResponseWriter, r *http.Request) 
 func (s *HttpServer) SourcesRedditNewDisplay(w http.ResponseWriter, r *http.Request) {
 	var details []ListSourcesDetailsParam
 	param := ListSourcesParam{
-		Title: "Reddit Sources",
+		Title:    "Reddit Sources",
 		Subtitle: "Here are the available sources.",
-		Source: "reddit",
+		Source:   "reddit",
 	}
 
-	items, err  := s.api.Sources.ListBySource("reddit")
+	items, err := s.api.Sources.ListBySource("reddit")
 	if err != nil {
 		panic(err)
 	}
-	
+
 	for _, item := range *items {
 		var i ListSourcesDetailsParam
 
@@ -153,7 +245,7 @@ func (s *HttpServer) SourcesRedditNewDisplay(w http.ResponseWriter, r *http.Requ
 			i.Enabled = true
 		}
 
-		i.Item = &item
+		i.Item = item
 
 		details = append(details, i)
 	}
@@ -172,20 +264,20 @@ func (s *HttpServer) SourcesRedditNewPost(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Form Error",
-			Code: 500,
+			Code:  500,
 			Error: err,
 		})
-		return 
+		return
 	}
 
 	name := r.Form.Get("name")
 	if name == "" {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Invalid Article ID",
-			Code: 500,
+			Code:  500,
 			Error: err,
 		})
-		return 
+		return
 	}
 
 	uri := fmt.Sprintf("https://reddit.com/r/%v", name)
@@ -193,15 +285,15 @@ func (s *HttpServer) SourcesRedditNewPost(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Failed to add new Reddit source",
-			Code: 500,
+			Code:  500,
 			Error: err,
 		})
-		return 
+		return
 	}
 
 	w.Header().Add("Content Type", "text/html")
 	err = s.templates.ExecuteTemplate(w, "sources.new.posted", HttpParam{
-		Title: "Source Added",
+		Title:    "Source Added",
 		Subtitle: "It will be reviewed on the next collection",
 	})
 	if err != nil {
@@ -209,23 +301,22 @@ func (s *HttpServer) SourcesRedditNewPost(w http.ResponseWriter, r *http.Request
 	}
 }
 
-
 // This displays all the youtube sources known to the app.
 //
 // /settings/sources/youtube
 func (s *HttpServer) SourcesYouTubeIndex(w http.ResponseWriter, r *http.Request) {
 	var details []ListSourcesDetailsParam
 	param := ListSourcesParam{
-		Title: "YouTube Sources",
+		Title:    "YouTube Sources",
 		Subtitle: "Here are the available sources.",
-		Source: "YouTube",
+		Source:   "youtube",
 	}
 
-	items, err  := s.api.Sources.ListBySource("youtube")
+	items, err := s.api.Sources.ListBySource("youtube")
 	if err != nil {
 		panic(err)
 	}
-	
+
 	for _, item := range *items {
 		var i ListSourcesDetailsParam
 
@@ -237,7 +328,7 @@ func (s *HttpServer) SourcesYouTubeIndex(w http.ResponseWriter, r *http.Request)
 			i.Enabled = true
 		}
 
-		i.Item = &item
+		i.Item = item
 
 		details = append(details, i)
 	}
@@ -250,22 +341,21 @@ func (s *HttpServer) SourcesYouTubeIndex(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-// This displays all the twitch sources known to the app.
-//
-// /settings/sources/twitch
-func (s *HttpServer) SourcesTwitchIndex(w http.ResponseWriter, r *http.Request) {
+// This is the form that lets you enter a new youtube source into the application
+// /settings/sources/youtube/new
+func (s *HttpServer) SourcesYouTubeNewForm(w http.ResponseWriter, r *http.Request) {
 	var details []ListSourcesDetailsParam
 	param := ListSourcesParam{
-		Title: "Twitch Sources",
+		Title:    "YouTube Sources",
 		Subtitle: "Here are the available sources.",
-		Source: "twitch",
+		Source:   "youtube",
 	}
 
-	items, err  := s.api.Sources.ListBySource("twitch")
+	items, err := s.api.Sources.ListBySource("youtube")
 	if err != nil {
 		panic(err)
 	}
-	
+
 	for _, item := range *items {
 		var i ListSourcesDetailsParam
 
@@ -277,7 +367,99 @@ func (s *HttpServer) SourcesTwitchIndex(w http.ResponseWriter, r *http.Request) 
 			i.Enabled = true
 		}
 
-		i.Item = &item
+		i.Item = item
+
+		details = append(details, i)
+	}
+	param.Items = &details
+
+	w.Header().Add("Content Type", "text/html")
+	err = s.templates.ExecuteTemplate(w, "sources.new.youtube", param)
+	if err != nil {
+		panic(err)
+	}
+}
+
+// This validates the infomation sent from the form and passes it to the API.
+func (s *HttpServer) SourcesYouTubeNewPost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Form Error",
+			Code:  500,
+			Error: err,
+		})
+		return
+	}
+
+	name := r.Form.Get("name")
+	if name == "" {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Missing Name value",
+			Code:  500,
+			Error: err,
+		})
+		return
+	}
+
+	url := r.Form.Get("url")
+	if name == "" {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Missing URL value",
+			Code:  500,
+			Error: err,
+		})
+		return
+	}
+
+	err = s.api.Sources.NewYouTube(name, url)
+	if err != nil {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Failed to add new YouTube source",
+			Code:  500,
+			Error: err,
+		})
+		return
+	}
+
+	w.Header().Add("Content Type", "text/html")
+	err = s.templates.ExecuteTemplate(w, "sources.new.posted", HttpParam{
+		Title:    "Source Added",
+		Subtitle: "It will be reviewed on the next collection",
+	})
+	if err != nil {
+		panic(err)
+	}
+}
+
+// This displays all the twitch sources known to the app.
+//
+// /settings/sources/twitch
+func (s *HttpServer) SourcesTwitchIndex(w http.ResponseWriter, r *http.Request) {
+	var details []ListSourcesDetailsParam
+	param := ListSourcesParam{
+		Title:    "Twitch Sources",
+		Subtitle: "Here are the available sources.",
+		Source:   "twitch",
+	}
+
+	items, err := s.api.Sources.ListBySource("twitch")
+	if err != nil {
+		panic(err)
+	}
+
+	for _, item := range *items {
+		var i ListSourcesDetailsParam
+
+		if !item.Enabled {
+			i.Disabled = true
+			i.Enabled = false
+		} else {
+			i.Disabled = false
+			i.Enabled = true
+		}
+
+		i.Item = item
 
 		details = append(details, i)
 	}
@@ -296,16 +478,16 @@ func (s *HttpServer) SourcesTwitchIndex(w http.ResponseWriter, r *http.Request) 
 func (s *HttpServer) SourcesFfxivIndex(w http.ResponseWriter, r *http.Request) {
 	var details []ListSourcesDetailsParam
 	param := ListSourcesParam{
-		Title: "Final Fantasy XIV Sources",
+		Title:    "Final Fantasy XIV Sources",
 		Subtitle: "Here are the available sources.",
-		Source: "ffxiv",
+		Source:   "ffxiv",
 	}
 
-	items, err  := s.api.Sources.ListBySource("ffxiv")
+	items, err := s.api.Sources.ListBySource("ffxiv")
 	if err != nil {
 		panic(err)
 	}
-	
+
 	for _, item := range *items {
 		var i ListSourcesDetailsParam
 
@@ -317,7 +499,7 @@ func (s *HttpServer) SourcesFfxivIndex(w http.ResponseWriter, r *http.Request) {
 			i.Enabled = true
 		}
 
-		i.Item = &item
+		i.Item = item
 
 		details = append(details, i)
 	}
@@ -330,12 +512,11 @@ func (s *HttpServer) SourcesFfxivIndex(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 func (s *HttpServer) ListSources(w http.ResponseWriter, r *http.Request) {
 	param := ListSourcesParam{}
 	var details []ListSourcesDetailsParam
 
-	items, err  := s.api.Sources.List()
+	items, err := s.api.Sources.List()
 	if err != nil {
 		panic(err)
 	}
@@ -351,7 +532,7 @@ func (s *HttpServer) ListSources(w http.ResponseWriter, r *http.Request) {
 			i.Enabled = true
 		}
 
-		i.Item = &item
+		i.Item = item
 
 		details = append(details, i)
 	}
@@ -368,12 +549,12 @@ func (s *HttpServer) GetSourceById(w http.ResponseWriter, r *http.Request) {
 	var details []ListSourcesDetailsParam
 	param := ListSourcesParam{}
 
-	items, err  := s.api.Sources.List()
+	items, err := s.api.Sources.List()
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	
+
 	for _, item := range *items {
 		var i ListSourcesDetailsParam
 
@@ -385,7 +566,7 @@ func (s *HttpServer) GetSourceById(w http.ResponseWriter, r *http.Request) {
 			i.Enabled = true
 		}
 
-		i.Item = &item
+		i.Item = item
 
 		details = append(details, i)
 	}
@@ -398,4 +579,6 @@ func (s *HttpServer) GetSourceById(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *HttpServer) DisableSource(w http.ResponseWriter, r *http.Request) {
 
+}

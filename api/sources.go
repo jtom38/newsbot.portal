@@ -13,6 +13,7 @@ import (
 
 type SourcesApiClient struct {
 	endpoint string
+	client *http.Client
 }
 
 func (c *SourcesApiClient) List() (*[]Source, error) {
@@ -98,6 +99,26 @@ func (c *SourcesApiClient) NewReddit(name string, sourceUrl string) error {
 	return nil
 }
 
+func (c *SourcesApiClient) NewYouTube(Name string, Url string) error {
+	endpoint := fmt.Sprintf("%v/api/config/sources/new/youtube?name=%v&url=%v", c.endpoint, Name, url.QueryEscape(Url))
+	req, err := http.NewRequest("POST", endpoint, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != 200 {
+		return errors.New("unexpected status code")
+	}
+
+	return nil
+}
+
 func (c *SourcesApiClient) Delete(ID uuid.UUID) error {
 	endpoint := fmt.Sprintf("%v/api/config/sources/%v", c.endpoint, ID)
 	req, err := http.NewRequest("DELETE", endpoint, nil)
@@ -127,8 +148,7 @@ func (c *SourcesApiClient) Disable(ID uuid.UUID) error {
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	client := http.Client {}
-	resp, err := client.Do(req)
+	resp, err := c.client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -142,14 +162,14 @@ func (c *SourcesApiClient) Disable(ID uuid.UUID) error {
 
 func (c *SourcesApiClient) Enable(ID uuid.UUID) error {
 	endpoint := fmt.Sprintf("%v/api/config/sources/%v/enable", c.endpoint, ID)
+	
 	req, err := http.NewRequest("POST", endpoint, nil)
 	if err != nil {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	client := http.Client {}
-	resp, err := client.Do(req)
+	resp, err := c.client.Do(req)
 	if err != nil {
 		return err
 	}

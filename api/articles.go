@@ -11,22 +11,7 @@ import (
 
 type ArticlesApiClient struct {
 	endpoint string
-}
-
-func New(Endpoint string) *ApiClient {
-	c := ApiClient{
-		endpoint: Endpoint,
-
-		Articles: ArticlesApiClient{
-			endpoint: Endpoint,
-		},
-
-		Sources: SourcesApiClient{
-			endpoint:  Endpoint,
-		},
-	}
-
-	return &c
+	client *http.Client
 }
 
 func (c *ArticlesApiClient) List() (*[]Article, error) {
