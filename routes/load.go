@@ -67,7 +67,7 @@ package routes
 import (
 	"fmt"
 	"html/template"
-	"io/ioutil"
+	//"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -138,9 +138,12 @@ func (t *Tmpl) Load(dir, ext string) (err error) {
 			b  []byte
 		)
 
-		if b, err = ioutil.ReadFile(path); err != nil {
+		if b, err = os.ReadFile(path); err != nil {
 			return err
 		}
+		//if b, err = ioutil.ReadFile(path); err != nil {
+		//	return err
+		//}
 
 		_, err = nt.Parse(string(b))
 		return err
