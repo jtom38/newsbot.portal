@@ -8,3 +8,6 @@ build: ## builds the application with the current go runtime
 docker-build: ## Generates the docker image
 	docker build -t "newsbot.portal" .
 	docker image ls | grep newsbot.portal
+
+docker-debug: ## Runs the image locally for testing
+	docker run --rm newsbot.portal:latest
