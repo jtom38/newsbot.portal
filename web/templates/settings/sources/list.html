@@ -24,7 +24,7 @@
             </thead>
             {{ range .Items }}
             <tr>
-                <td>{{ .Item.Name }}</td>
+                <td> <a href="{{ .Item.Url }}"> {{ .Item.Name }}</a> </td>
                 <td><strong>{{ .Item.Enabled }}</strong></td>
                 <td>
                     <div class="field is-grouped">
