@@ -26,6 +26,9 @@ func (s *HttpServer) sourcesRouter() http.Handler {
 	r.Post("/youtube/new", s.SourcesYouTubeNewPost)
 
 	r.Get("/twitch", s.SourcesTwitchIndex)
+	r.Get("/twitch/new", s.SourcesTwitchNewForm)
+	r.Post("/twitch/new", s.SourcesTwitchNewFormPost)
+
 	r.Get("/ffxiv", s.SourcesFfxivIndex)
 
 	return r
@@ -133,7 +136,14 @@ func (s *HttpServer) EnableSourceById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.templates.ExecuteTemplate(w, "settings.index", nil)
+	w.Header().Add("Content Type", "text/html")
+	err = s.templates.ExecuteTemplate(w, "sources.posted", HttpParam{
+		Title:    "Source Enabled",
+		Subtitle: "It will be reviewed on the next collection",
+	})
+	if err != nil {
+		panic(err)
+	}
 }
 
 // /settings/sources/disable?id
@@ -178,9 +188,18 @@ func (s *HttpServer) DisableSourceById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.templates.ExecuteTemplate(w, "settings.index", nil)
+	w.Header().Add("Content Type", "text/html")
+	err = s.templates.ExecuteTemplate(w, "sources.posted", HttpParam{
+		Title:    "Source Disabled",
+		Subtitle: "It will be skipped on the next collection",
+	})
+	if err != nil {
+		panic(err)
+	}
 }
 
+
+/* Reddit */
 // This displays all the reddit sources known to the app.
 //
 // /settings/sources/reddit
@@ -292,7 +311,7 @@ func (s *HttpServer) SourcesRedditNewPost(w http.ResponseWriter, r *http.Request
 	}
 
 	w.Header().Add("Content Type", "text/html")
-	err = s.templates.ExecuteTemplate(w, "sources.new.posted", HttpParam{
+	err = s.templates.ExecuteTemplate(w, "sources.posted", HttpParam{
 		Title:    "Source Added",
 		Subtitle: "It will be reviewed on the next collection",
 	})
@@ -301,6 +320,8 @@ func (s *HttpServer) SourcesRedditNewPost(w http.ResponseWriter, r *http.Request
 	}
 }
 
+
+/* YouTube */
 // This displays all the youtube sources known to the app.
 //
 // /settings/sources/youtube
@@ -423,7 +444,7 @@ func (s *HttpServer) SourcesYouTubeNewPost(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.Header().Add("Content Type", "text/html")
-	err = s.templates.ExecuteTemplate(w, "sources.new.posted", HttpParam{
+	err = s.templates.ExecuteTemplate(w, "sources.posted", HttpParam{
 		Title:    "Source Added",
 		Subtitle: "It will be reviewed on the next collection",
 	})
@@ -432,6 +453,8 @@ func (s *HttpServer) SourcesYouTubeNewPost(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+
+/* Twitch */
 // This displays all the twitch sources known to the app.
 //
 // /settings/sources/twitch
@@ -471,6 +494,88 @@ func (s *HttpServer) SourcesTwitchIndex(w http.ResponseWriter, r *http.Request) 
 		panic(err)
 	}
 }
+
+// This is the form that lets you enter a new youtube source into the application
+// /settings/sources/twitch/new
+func (s *HttpServer) SourcesTwitchNewForm(w http.ResponseWriter, r *http.Request) {
+	var details []ListSourcesDetailsParam
+	param := ListSourcesParam{
+		Title:    "Twitch Sources",
+		Subtitle: "Here are the available sources.",
+		Source:   "twitch",
+	}
+
+	items, err := s.api.Sources.ListBySource("twitch")
+	if err != nil {
+		panic(err)
+	}
+
+	for _, item := range *items {
+		var i ListSourcesDetailsParam
+
+		if !item.Enabled {
+			i.Disabled = true
+			i.Enabled = false
+		} else {
+			i.Disabled = false
+			i.Enabled = true
+		}
+
+		i.Item = item
+
+		details = append(details, i)
+	}
+	param.Items = &details
+
+	w.Header().Add("Content Type", "text/html")
+	err = s.templates.ExecuteTemplate(w, "sources.new.twitch", param)
+	if err != nil {
+		panic(err)
+	}
+}
+
+// This validates the infomation sent from the form and passes it to the API.
+func (s *HttpServer) SourcesTwitchNewFormPost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Form Error",
+			Code:  500,
+			Error: err,
+		})
+		return
+	}
+
+	name := r.Form.Get("name")
+	if name == "" {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Missing Name value",
+			Code:  500,
+			Error: err,
+		})
+		return
+	}
+
+	err = s.api.Sources.NewTwitch(name)
+	if err != nil {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Failed to add new YouTube source",
+			Code:  500,
+			Error: err,
+		})
+		return
+	}
+
+	w.Header().Add("Content Type", "text/html")
+	err = s.templates.ExecuteTemplate(w, "sources.posted", HttpParam{
+		Title:    "Source Added",
+		Subtitle: "It will be reviewed on the next collection",
+	})
+	if err != nil {
+		panic(err)
+	}
+}
+
 
 // This displays all the ffxiv sources known to the app.
 //
@@ -577,8 +682,4 @@ func (s *HttpServer) GetSourceById(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func (s *HttpServer) DisableSource(w http.ResponseWriter, r *http.Request) {
-
 }

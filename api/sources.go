@@ -119,6 +119,26 @@ func (c *SourcesApiClient) NewYouTube(Name string, Url string) error {
 	return nil
 }
 
+func (c *SourcesApiClient) NewTwitch(Name string) error {
+	endpoint := fmt.Sprintf("%v/api/config/sources/new/twitch?name=%v", c.endpoint, Name)
+	req, err := http.NewRequest("POST", endpoint, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := c.client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != 200 {
+		return errors.New("unexpected status code")
+	}
+
+	return nil
+}
+
 func (c *SourcesApiClient) Delete(ID uuid.UUID) error {
 	endpoint := fmt.Sprintf("%v/api/config/sources/%v", c.endpoint, ID)
 	req, err := http.NewRequest("DELETE", endpoint, nil)
