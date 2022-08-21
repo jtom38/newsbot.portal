@@ -1,0 +1,24 @@
+{{ define "articles.list.min" }}
+{{ template "header" . }}
+{{ template "hero-title" . }}
+
+<div class="columns">
+    <div class="column is-one-quarter">
+      {{ template "articles.menu" . }}
+    </div>
+    <div class="column">
+      <br/>      
+      <ul>
+        {{ range .Items }}
+        <div class="content">
+          <a href="/articles/{{ .Article.ID }}"><strong>{{ .Article.Title }}</strong></a><br>
+          <small>{{ .Article.Pubdate }}</small> <br>
+          <small>{{ .Source.Source }} - {{ .Source.Name }} </small>
+        </div>
+      {{ end }}
+      </ul>
+    </div>
+</div>
+
+{{ template "footer" . }}
+{{ end }}
