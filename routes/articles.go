@@ -15,6 +15,7 @@ func (s *HttpServer) articlesRouter() http.Handler {
 
 	r.Get("/", s.ArticleIndex)
 	r.Get("/list", s.ListArticles)
+	r.Get("/newest", s.ListArticles)
 
 	r.Route("/{ID}", func(r chi.Router) {
 		r.Get("/", s.DisplayArticleById)
