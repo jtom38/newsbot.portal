@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -23,7 +23,7 @@ func (c *ArticlesApiClient) List() (*[]Article, error) {
 		return &items, err
 	}
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return &items, err
 	}
@@ -48,7 +48,7 @@ func (c *ArticlesApiClient) Get(ID uuid.UUID) (*Article, error) {
 		return &items, err
 	}
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return &items, err
 	}
@@ -70,7 +70,7 @@ func (c *ArticlesApiClient) ListBySourceId(ID uuid.UUID) (*[]Article, error) {
 		return &items, err
 	}
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return &items, err
 	}
