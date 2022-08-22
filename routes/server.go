@@ -60,8 +60,7 @@ func (s *HttpServer) MountRoutes() {
 	s.Router.Mount("/articles", s.articlesRouter())
 	s.Router.Mount("/settings", s.settingsRouter())
 	s.Router.Mount("/settings/sources", s.sourcesRouter())
-	//s.Router.Mount("/settings/outputs/discordwebhooks", )
-
+	s.Router.Mount("/settings/outputs", s.outputsRouter())
 }
 
 func (s *HttpServer) Index(w http.ResponseWriter, r *http.Request) {
