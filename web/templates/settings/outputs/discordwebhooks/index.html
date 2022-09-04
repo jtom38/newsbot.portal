@@ -1,5 +1,6 @@
 {{ define "settings.outputs.discordwebhooks.index" }}
 {{ template "header" . }}
+{{ template "hero-title" . }}
 
 <div class="columns">
     <div class="column is-one-quarter m-3">
@@ -9,7 +10,7 @@
 
         <nav class="level">
             <p class="level-item has-text-centered">
-                <a class="button link has-info" href="/">New</a>
+                <a class="button link has-info" href="/settings/outputs/discord/webhooks/new">New</a>
             </p>
         </nav>
 
@@ -28,11 +29,11 @@
                 <td>
                     <div class="field is-grouped">
                         {{ if .Enabled }}
-                        <form target="_blank" action="/settings/outputs/discord/webhooks/{{ .Item.ID }}/disable" method="post">
+                        <form action="/settings/outputs/discord/webhooks/{{ .Item.ID }}/disable" method="post">
                             <input class="button" type="submit" value="Disable">
                         </form>
 
-                        <form  action="/settings/outputs/discord/webhooks/{{ .Item.ID }}/enable" method="post">
+                        <form action="/settings/outputs/discord/webhooks/{{ .Item.ID }}/enable" method="post">
                             <input class="button" type="submit" value="Enable" disabled>
                         </form>
                         {{ end }}
@@ -42,7 +43,7 @@
                             <input class="button" type="submit" value="Disable" disabled>
                         </form>
 
-                        <form action="/settings/outputs/discord/webhooks/{{ .Items.ID }}/enable" method="post">
+                        <form action="/settings/outputs/discord/webhooks/{{ .Item.ID }}/enable" method="post">
                             <input class="button" type="submit" value="Enable" >
                         </form>
                         {{ end }}
