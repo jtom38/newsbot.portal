@@ -8,6 +8,7 @@ type ApiClient struct {
 
 	Articles ArticlesApiClient
 	Sources SourcesApiClient
+	Outputs OutputApiClient
 }
 
 func New(Endpoint string) *ApiClient {
@@ -21,6 +22,11 @@ func New(Endpoint string) *ApiClient {
 
 		Sources: SourcesApiClient{
 			endpoint:  Endpoint,
+			client: &http.Client{},
+		},
+
+		Outputs: OutputApiClient{
+			endpoint: Endpoint,
 			client: &http.Client{},
 		},
 	}

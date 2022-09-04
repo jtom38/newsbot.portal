@@ -165,8 +165,8 @@ func (s *HttpServer) ListArticles(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Printf("Article '%v', has a invalid SourceID", item.ID)
 		}
-		var s api.Source
-		s = *source
+		//var s api.Source
+		s := *source
 
 		d := ListArticlesDetailsParam{
 			Source: s,
@@ -219,8 +219,8 @@ func (s *HttpServer) ListArticlesBySource(w http.ResponseWriter, r *http.Request
 		if err != nil {
 			log.Printf("Article '%v', has a invalid SourceID", item.ID)
 		}
-		var s api.Source
-		s = *source
+		//var s api.Source
+		s := *source
 
 		d := ListArticlesDetailsParam{
 			Source: s,

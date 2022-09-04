@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -26,7 +26,7 @@ func (c *SourcesApiClient) List() (*[]Source, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return &items, err
 	}
@@ -49,7 +49,7 @@ func (c *SourcesApiClient) ListBySource(value string) (*[]Source, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return &items, err
 	}
@@ -72,7 +72,7 @@ func (c *SourcesApiClient) GetById(ID uuid.UUID) (*Source, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return &items, err
 	}

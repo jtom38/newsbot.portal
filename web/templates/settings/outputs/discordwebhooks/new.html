@@ -1,0 +1,42 @@
+{{ define "settings.outputs.discord.webhooks.new" }}
+{{ template "header" . }}
+{{ template "hero-title" . }}
+
+<div class="columns">
+    <div class="column is-one-quarter m-3">
+        {{ template "settings.menu" . }}
+    </div>
+    
+    <div class="column m-3">  
+
+        <form action="/settings/outputs/discord/webhooks/new" method="post">
+
+            <div class="field">
+                <label class="label">Server Name</label>
+                <div class="control">
+                    <input class="input" type="text" name="server" placeholder="Awesome Sever">
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Channel Name</label>
+                <div class="control">
+                    <input class="input" type="text" name="channel" placeholder="memes">
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Webhook Url</label>
+                <div class="control">
+                    <input class="input" type="text" name="url" placeholder="https://discord.com/api/webhooks/...">
+                </div>
+            </div>
+
+            <input class="button" type="submit" value="submit" >
+        </form>
+        
+    </div>
+</div>
+
+{{ template "footer" . }}
+{{ end }}

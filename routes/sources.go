@@ -495,7 +495,7 @@ func (s *HttpServer) SourcesTwitchIndex(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-// This is the form that lets you enter a new youtube source into the application
+// This is the form that lets you enter a new Twitch source into the application
 // /settings/sources/twitch/new
 func (s *HttpServer) SourcesTwitchNewForm(w http.ResponseWriter, r *http.Request) {
 	var details []ListSourcesDetailsParam
