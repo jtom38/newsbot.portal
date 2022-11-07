@@ -85,7 +85,7 @@ func (s *HttpServer) DisplayArticleById(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	article, err := s.api.Articles.Get(uuid)
+	article, err := s.api.Articles().Get(uuid)
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Invalid Article ID",
@@ -97,7 +97,7 @@ func (s *HttpServer) DisplayArticleById(w http.ResponseWriter, r *http.Request) 
 	param.Article = article
 	param.Title = article.Title
 
-	source, err := s.api.Sources.GetById(article.Sourceid)
+	source, err := s.api.Sources().GetById(article.Sourceid)
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Invalid Source ID",
@@ -153,7 +153,7 @@ func (s *HttpServer) ListArticles(w http.ResponseWriter, r *http.Request) {
 		Subtitle: "Below is a list of the newest articles pulled for you to view.",
 	}
 
-	items, err := s.api.Articles.List()
+	items, err := s.api.Articles().List()
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	}
@@ -161,7 +161,7 @@ func (s *HttpServer) ListArticles(w http.ResponseWriter, r *http.Request) {
 	var details []ListArticlesDetailsParam
 
 	for _, item := range *items {
-		source, err  := s.api.Sources.GetById(item.Sourceid)
+		source, err  := s.api.Sources().GetById(item.Sourceid)
 		if err != nil {
 			log.Printf("Article '%v', has a invalid SourceID", item.ID)
 		}
@@ -207,7 +207,7 @@ func (s *HttpServer) ListArticlesBySource(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	items, err := s.api.Articles.ListBySourceId(uuid)
+	items, err := s.api.Articles().ListBySourceId(uuid)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	}
@@ -215,7 +215,7 @@ func (s *HttpServer) ListArticlesBySource(w http.ResponseWriter, r *http.Request
 	var details []ListArticlesDetailsParam
 
 	for _, item := range *items {
-		source, err  := s.api.Sources.GetById(item.Sourceid)
+		source, err  := s.api.Sources().GetById(item.Sourceid)
 		if err != nil {
 			log.Printf("Article '%v', has a invalid SourceID", item.ID)
 		}
@@ -252,7 +252,7 @@ func (s *HttpServer) ListArticleSources(w http.ResponseWriter, r *http.Request) 
 		Subtitle: "Below are the enabled news sources to pick from.",
 	}
 
-	records, err := s.api.Sources.List()
+	records, err := s.api.Sources().List()
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Failed to fetch sources",
