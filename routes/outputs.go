@@ -19,6 +19,7 @@ func (s *HttpServer) outputsRouter() http.Handler {
 		r.Post("/delete", s.DeleteDiscordWebHookById)
 		r.Post("/disable", s.DisableDiscordWebHookById)
 		r.Post("/enable", s.EnableDiscordWebHookById)
+		//r.Post("/update",)
 	})
 
 	return r
@@ -43,7 +44,7 @@ func (s *HttpServer) OutputDiscordIndex(w http.ResponseWriter, r *http.Request) 
 		Subtitle: "Here are the known Discord Webhooks.",
 	}
 
-	items, err := s.api.Outputs.ListDiscordWebHooks()
+	items, err := s.api.Outputs().DiscordWebHook().List()
 	if err != nil {
 		panic(err)
 	}
@@ -95,7 +96,7 @@ func (s *HttpServer) DeleteDiscordWebHookById(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = s.api.Outputs.DeleteDiscordWebHook(uid)
+	err = s.api.Outputs().DiscordWebHook().Delete(uid)
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Failed to delete the Source",
@@ -127,7 +128,7 @@ func (s *HttpServer) EnableDiscordWebHookById(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = s.api.Outputs.EnableDiscordWebHook(uid)
+	err = s.api.Outputs().DiscordWebHook().Enable(uid)
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Failed to delete the Source",
@@ -168,7 +169,7 @@ func (s *HttpServer) DisableDiscordWebHookById(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	err = s.api.Outputs.DisableDiscordWebHook(uid)
+	err = s.api.Outputs().DiscordWebHook().Disable(uid)
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Failed to delete the Source",
@@ -186,6 +187,30 @@ func (s *HttpServer) DisableDiscordWebHookById(w http.ResponseWriter, r *http.Re
 	if err != nil {
 		panic(err)
 	}
+}
+
+func (s *HttpServer) UpdateDiscordWebHookById(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "ID")
+	if id == "" {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Missing Source ID",
+			Code:  500,
+			Error: errors.New("ID was not found"),
+		})
+		return
+	}
+
+	_, err := uuid.Parse(id)
+	if err != nil {
+		s.templates.ExecuteTemplate(w, "err", ErrParam{
+			Title: "Invalid Source ID",
+			Code:  500,
+			Error: err,
+		})
+		return
+	}
+
+	
 }
 
 func (s *HttpServer) NewDiscordWebhookDisplay(w http.ResponseWriter, r *http.Request) {
@@ -243,7 +268,7 @@ func (s *HttpServer) NewDiscordWebhookFormPost(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	err = s.api.Outputs.NewDiscordWebhook(server, channel, url)
+	err = s.api.Outputs().DiscordWebHook().New(server, channel, url)
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Failed to add new Discord Webhook",

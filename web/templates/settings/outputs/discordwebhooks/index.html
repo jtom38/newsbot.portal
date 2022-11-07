@@ -47,6 +47,10 @@
                             <input class="button" type="submit" value="Enable" >
                         </form>
                         {{ end }}
+
+                        <form action="/settings/outputs/discord/webhooks/{{ .Item.ID }}/edit" method="post">
+                            <input class="button" type="submit" value="Edit">
+                        </form>
                     </div>
                 </td>
             </tr>

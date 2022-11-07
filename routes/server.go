@@ -21,7 +21,9 @@ type HttpServer struct {
 	ctx *context.Context
 
 	// Links to the class to interface with the API
-	api *api.ApiClient
+	//api *api.ApiClient
+	api api.CollectorApi
+
 
 	// Contains where to find all Templates
 	templates *template.Template

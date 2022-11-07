@@ -83,7 +83,7 @@ func (s *HttpServer) DeleteSourceById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.api.Sources.Delete(uid)
+	err = s.api.Sources().Delete(uid)
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Failed to delete the Source",
@@ -126,7 +126,7 @@ func (s *HttpServer) EnableSourceById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.api.Sources.Enable(uid)
+	err = s.api.Sources().Enable(uid)
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Failed to delete the Source",
@@ -178,7 +178,7 @@ func (s *HttpServer) DisableSourceById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.api.Sources.Disable(uid)
+	err = s.api.Sources().Disable(uid)
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Failed to delete the Source",
@@ -211,7 +211,7 @@ func (s *HttpServer) SourcesRedditIndex(w http.ResponseWriter, r *http.Request) 
 		Source:   "reddit",
 	}
 
-	items, err := s.api.Sources.ListBySource("reddit")
+	items, err := s.api.Sources().ListBySource("reddit")
 	if err != nil {
 		panic(err)
 	}
@@ -248,7 +248,7 @@ func (s *HttpServer) SourcesRedditNewDisplay(w http.ResponseWriter, r *http.Requ
 		Source:   "reddit",
 	}
 
-	items, err := s.api.Sources.ListBySource("reddit")
+	items, err := s.api.Sources().ListBySource("reddit")
 	if err != nil {
 		panic(err)
 	}
@@ -300,7 +300,7 @@ func (s *HttpServer) SourcesRedditNewPost(w http.ResponseWriter, r *http.Request
 	}
 
 	uri := fmt.Sprintf("https://reddit.com/r/%v", name)
-	err = s.api.Sources.NewReddit(name, uri)
+	err = s.api.Sources().NewReddit(name, uri)
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Failed to add new Reddit source",
@@ -333,7 +333,7 @@ func (s *HttpServer) SourcesYouTubeIndex(w http.ResponseWriter, r *http.Request)
 		Source:   "youtube",
 	}
 
-	items, err := s.api.Sources.ListBySource("youtube")
+	items, err := s.api.Sources().ListBySource("youtube")
 	if err != nil {
 		panic(err)
 	}
@@ -372,7 +372,7 @@ func (s *HttpServer) SourcesYouTubeNewForm(w http.ResponseWriter, r *http.Reques
 		Source:   "youtube",
 	}
 
-	items, err := s.api.Sources.ListBySource("youtube")
+	items, err := s.api.Sources().ListBySource("youtube")
 	if err != nil {
 		panic(err)
 	}
@@ -433,7 +433,7 @@ func (s *HttpServer) SourcesYouTubeNewPost(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = s.api.Sources.NewYouTube(name, url)
+	err = s.api.Sources().NewYouTube(name, url)
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Failed to add new YouTube source",
@@ -466,7 +466,7 @@ func (s *HttpServer) SourcesTwitchIndex(w http.ResponseWriter, r *http.Request) 
 		Source:   "twitch",
 	}
 
-	items, err := s.api.Sources.ListBySource("twitch")
+	items, err := s.api.Sources().ListBySource("twitch")
 	if err != nil {
 		panic(err)
 	}
@@ -505,7 +505,7 @@ func (s *HttpServer) SourcesTwitchNewForm(w http.ResponseWriter, r *http.Request
 		Source:   "twitch",
 	}
 
-	items, err := s.api.Sources.ListBySource("twitch")
+	items, err := s.api.Sources().ListBySource("twitch")
 	if err != nil {
 		panic(err)
 	}
@@ -556,7 +556,7 @@ func (s *HttpServer) SourcesTwitchNewFormPost(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = s.api.Sources.NewTwitch(name)
+	err = s.api.Sources().NewTwitch(name)
 	if err != nil {
 		s.templates.ExecuteTemplate(w, "err", ErrParam{
 			Title: "Failed to add new YouTube source",
@@ -588,7 +588,7 @@ func (s *HttpServer) SourcesFfxivIndex(w http.ResponseWriter, r *http.Request) {
 		Source:   "ffxiv",
 	}
 
-	items, err := s.api.Sources.ListBySource("ffxiv")
+	items, err := s.api.Sources().ListBySource("ffxiv")
 	if err != nil {
 		panic(err)
 	}
@@ -621,7 +621,7 @@ func (s *HttpServer) ListSources(w http.ResponseWriter, r *http.Request) {
 	param := ListSourcesParam{}
 	var details []ListSourcesDetailsParam
 
-	items, err := s.api.Sources.List()
+	items, err := s.api.Sources().List()
 	if err != nil {
 		panic(err)
 	}
@@ -654,7 +654,7 @@ func (s *HttpServer) GetSourceById(w http.ResponseWriter, r *http.Request) {
 	var details []ListSourcesDetailsParam
 	param := ListSourcesParam{}
 
-	items, err := s.api.Sources.List()
+	items, err := s.api.Sources().List()
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		return
