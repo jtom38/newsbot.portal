@@ -6,30 +6,33 @@ import "net/http"
 type ApiClient struct {
 	endpoint string
 
-	Articles ArticlesApiClient
-	Sources SourcesApiClient
-	Outputs OutputApiClient
+	_articles ArticlesApi
+	_sources SourcesApi
+	_outputs OutputsApi
 }
 
-func New(Endpoint string) *ApiClient {
+func New(Endpoint string) CollectorApi {
+
+	client := http.Client{}
 	c := ApiClient{
 		endpoint: Endpoint,
 
-		Articles: ArticlesApiClient{
-			endpoint: Endpoint,
-			client: &http.Client{},
-		},
-
-		Sources: SourcesApiClient{
-			endpoint:  Endpoint,
-			client: &http.Client{},
-		},
-
-		Outputs: OutputApiClient{
-			endpoint: Endpoint,
-			client: &http.Client{},
-		},
+		_articles: NewArticlesClient(Endpoint, &client),
+		_sources: NewSourcesApiClient(Endpoint, &client),
+		_outputs: NewOutputsApiClient(Endpoint, &client),
 	}
 
-	return &c
+	return c
+}
+
+func (c ApiClient) Articles() ArticlesApi {
+	return c._articles
+}
+
+func (c ApiClient) Sources() SourcesApi {
+	return c._sources
+}
+
+func (c ApiClient) Outputs() OutputsApi {
+	return c._outputs
 }

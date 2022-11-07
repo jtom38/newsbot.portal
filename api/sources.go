@@ -16,7 +16,15 @@ type SourcesApiClient struct {
 	client *http.Client
 }
 
-func (c *SourcesApiClient) List() (*[]Source, error) {
+func NewSourcesApiClient(endpoint string, client *http.Client) SourcesApi {
+	c := SourcesApiClient {
+		endpoint: endpoint,
+		client: client,
+	}
+	return c
+}
+
+func (c SourcesApiClient) List() (*[]Source, error) {
 	var items []Source
 
 	uri := fmt.Sprintf("%v/api/config/sources", c.endpoint)
@@ -39,7 +47,7 @@ func (c *SourcesApiClient) List() (*[]Source, error) {
 	return &items, nil
 }
 
-func (c *SourcesApiClient) ListBySource(value string) (*[]Source, error) {
+func (c SourcesApiClient) ListBySource(value string) (*[]Source, error) {
 	var items []Source
 
 	uri := fmt.Sprintf("%v/api/config/sources/by/source?source=%v", c.endpoint, value)
@@ -62,7 +70,7 @@ func (c *SourcesApiClient) ListBySource(value string) (*[]Source, error) {
 	return &items, nil
 }
 
-func (c *SourcesApiClient) GetById(ID uuid.UUID) (*Source, error) {
+func (c SourcesApiClient) GetById(ID uuid.UUID) (*Source, error) {
 	var items Source
 
 	uri := fmt.Sprintf("%v/api/config/sources/%v", c.endpoint, ID)
@@ -85,7 +93,7 @@ func (c *SourcesApiClient) GetById(ID uuid.UUID) (*Source, error) {
 	return &items, nil
 }
 
-func (c *SourcesApiClient) NewReddit(name string, sourceUrl string) error {
+func (c SourcesApiClient) NewReddit(name string, sourceUrl string) error {
 	endpoint := fmt.Sprintf("%v/api/config/sources/new/reddit?name=%v&url=%v", c.endpoint, name, url.QueryEscape(sourceUrl))
 	res, err := http.Post(endpoint, "application/json", nil)
 	if err != nil {
@@ -99,7 +107,7 @@ func (c *SourcesApiClient) NewReddit(name string, sourceUrl string) error {
 	return nil
 }
 
-func (c *SourcesApiClient) NewYouTube(Name string, Url string) error {
+func (c SourcesApiClient) NewYouTube(Name string, Url string) error {
 	endpoint := fmt.Sprintf("%v/api/config/sources/new/youtube?name=%v&url=%v", c.endpoint, Name, url.QueryEscape(Url))
 	req, err := http.NewRequest("POST", endpoint, nil)
 	if err != nil {
@@ -119,7 +127,7 @@ func (c *SourcesApiClient) NewYouTube(Name string, Url string) error {
 	return nil
 }
 
-func (c *SourcesApiClient) NewTwitch(Name string) error {
+func (c SourcesApiClient) NewTwitch(Name string) error {
 	endpoint := fmt.Sprintf("%v/api/config/sources/new/twitch?name=%v", c.endpoint, Name)
 	req, err := http.NewRequest("POST", endpoint, nil)
 	if err != nil {
@@ -139,7 +147,7 @@ func (c *SourcesApiClient) NewTwitch(Name string) error {
 	return nil
 }
 
-func (c *SourcesApiClient) Delete(ID uuid.UUID) error {
+func (c SourcesApiClient) Delete(ID uuid.UUID) error {
 	endpoint := fmt.Sprintf("%v/api/config/sources/%v", c.endpoint, ID)
 	req, err := http.NewRequest("DELETE", endpoint, nil)
 	if err != nil {
@@ -160,7 +168,7 @@ func (c *SourcesApiClient) Delete(ID uuid.UUID) error {
 	return nil
 }
 
-func (c *SourcesApiClient) Disable(ID uuid.UUID) error {
+func (c SourcesApiClient) Disable(ID uuid.UUID) error {
 	endpoint := fmt.Sprintf("%v/api/config/sources/%v/disable", c.endpoint, ID)
 	req, err := http.NewRequest("POST", endpoint, nil)
 	if err != nil {
@@ -180,7 +188,7 @@ func (c *SourcesApiClient) Disable(ID uuid.UUID) error {
 	return nil
 }
 
-func (c *SourcesApiClient) Enable(ID uuid.UUID) error {
+func (c SourcesApiClient) Enable(ID uuid.UUID) error {
 	endpoint := fmt.Sprintf("%v/api/config/sources/%v/enable", c.endpoint, ID)
 	
 	req, err := http.NewRequest("POST", endpoint, nil)

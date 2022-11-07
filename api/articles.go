@@ -14,7 +14,15 @@ type ArticlesApiClient struct {
 	client *http.Client
 }
 
-func (c *ArticlesApiClient) List() (*[]Article, error) {
+func NewArticlesClient(Endpoint string, Client *http.Client) ArticlesApi {
+	c := ArticlesApiClient {
+		endpoint: Endpoint,
+		client: Client,
+	}
+	return c
+}
+
+func (c ArticlesApiClient) List() (*[]Article, error) {
 	var items []Article
 
 	uri := fmt.Sprintf("%v/api/articles", c.endpoint)
@@ -39,7 +47,7 @@ func (c *ArticlesApiClient) List() (*[]Article, error) {
 // Returns a single article based on its iD
 //
 // /api/articles/{id}
-func (c *ArticlesApiClient) Get(ID uuid.UUID) (*Article, error) {
+func (c ArticlesApiClient) Get(ID uuid.UUID) (*Article, error) {
 	var items Article
 
 	uri := fmt.Sprintf("%v/api/articles/%v", c.endpoint, ID)
@@ -61,7 +69,7 @@ func (c *ArticlesApiClient) Get(ID uuid.UUID) (*Article, error) {
 	return &items, nil
 }
 
-func (c *ArticlesApiClient) ListBySourceId(ID uuid.UUID) (*[]Article, error) {
+func (c ArticlesApiClient) ListBySourceId(ID uuid.UUID) (*[]Article, error) {
 	var items []Article
 
 	uri := fmt.Sprintf("%v/api/articles/by/sourceid?id=%v", c.endpoint, ID)

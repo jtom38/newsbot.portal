@@ -13,10 +13,41 @@ import (
 type OutputApiClient struct {
 	endpoint string
 	client   *http.Client
+
+	discordWebHooks OutputDiscordWebHookApi
+}
+
+func NewOutputsApiClient(endpoint string, client *http.Client) OutputsApi {
+	c := OutputApiClient {
+		endpoint: endpoint,
+		client: client,
+
+		discordWebHooks: NewDiscordWebHooksClient(endpoint, client),
+	}
+	return c
+}
+
+func (c OutputApiClient) DiscordWebHook() OutputDiscordWebHookApi {
+	return c.discordWebHooks
+}
+
+
+type DiscordWebHooksClient struct {
+	endpoint string
+	client   *http.Client
+}
+
+func NewDiscordWebHooksClient(endpoint string, client *http.Client) OutputDiscordWebHookApi {
+	c := DiscordWebHooksClient {
+		endpoint: endpoint,
+		client: client,
+	}
+	return c
+	
 }
 
 // Returns all the WebHooks known to the API.
-func (c *OutputApiClient) ListDiscordWebHooks() (*[]Discordwebhook, error) {
+func (c DiscordWebHooksClient) List() (*[]Discordwebhook, error) {
 	var items []Discordwebhook
 	uri := fmt.Sprintf("%v/api/discord/webhooks", c.endpoint)
 
@@ -50,7 +81,7 @@ func (c *OutputApiClient) ListDiscordWebHooks() (*[]Discordwebhook, error) {
 }
 
 // Returns a single Webhook based on its ID value.
-func (c *OutputApiClient) GetDiscordWebHook(id uuid.UUID) (*Discordwebhook, error) {
+func (c DiscordWebHooksClient) Get(id uuid.UUID) (*Discordwebhook, error) {
 	var item Discordwebhook
 	uri := fmt.Sprintf("%v/api/discord/webhooks/%v", c.endpoint, id)
 
@@ -83,7 +114,7 @@ func (c *OutputApiClient) GetDiscordWebHook(id uuid.UUID) (*Discordwebhook, erro
 	return &item, nil
 }
 
-func (c *OutputApiClient) DeleteDiscordWebHook(id uuid.UUID) error {
+func (c DiscordWebHooksClient) Delete(id uuid.UUID) error {
 	uri := fmt.Sprintf("%v/api/discord/webhooks/%v", c.endpoint, id)
 
 	req, err := http.NewRequest("DELETE", uri, nil)
@@ -104,7 +135,7 @@ func (c *OutputApiClient) DeleteDiscordWebHook(id uuid.UUID) error {
 	return nil
 }
 
-func (c *OutputApiClient) DisableDiscordWebHook(id uuid.UUID) error {
+func (c DiscordWebHooksClient) Disable(id uuid.UUID) error {
 	uri := fmt.Sprintf("%v/api/discord/webhooks/%v/disable", c.endpoint, id)
 
 	req, err := http.NewRequest("POST", uri, nil)
@@ -125,7 +156,7 @@ func (c *OutputApiClient) DisableDiscordWebHook(id uuid.UUID) error {
 	return nil
 }
 
-func (c *OutputApiClient) EnableDiscordWebHook(id uuid.UUID) error {
+func (c DiscordWebHooksClient) Enable(id uuid.UUID) error {
 	uri := fmt.Sprintf("%v/api/discord/webhooks/%v/enable", c.endpoint, id)
 
 	req, err := http.NewRequest("POST", uri, nil)
@@ -146,7 +177,7 @@ func (c *OutputApiClient) EnableDiscordWebHook(id uuid.UUID) error {
 	return nil
 }
 
-func (c *OutputApiClient) NewDiscordWebhook(server string, channel string, url string) error {
+func (c DiscordWebHooksClient) New(server string, channel string, url string) error {
 	uri := fmt.Sprintf("%v/api/discord/webhooks/new?url=%v&server=%v&channel=%v", c.endpoint, url, server, channel)
 
 	req, err := http.NewRequest("POST", uri, nil)
