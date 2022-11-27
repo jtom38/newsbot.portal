@@ -1,10 +1,7 @@
-{{ define "sources.new.twitch" }}
-{{ template "header" . }}
-{{ template "hero-title" . }}
-
+{{ define "content" }}
 <div class="columns">
     <div class="column is-one-quarter m-3">
-        {{ template "settings.menu" . }}
+        {{ template "menu" . }}
     </div>
     <div class="column m-3">  
     
@@ -22,6 +19,4 @@
         
     </div>
 </div>
-
-{{ template "footer" . }}
 {{ end }}

@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+        <link rel="stylesheet" type="text/css" href="https://unpkg.com/bulma-prefers-dark" />
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                // Get all "navbar-burger" elements
+                const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+                // Add a click event on each of them
+                $navbarBurgers.forEach( el => {
+                    el.addEventListener('click', () => {
+                        // Get the target from the "data-target" attribute
+                        const target = el.dataset.target;
+                        const $target = document.getElementById(target);
+
+                        // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+                        el.classList.toggle('is-active');
+                        $target.classList.toggle('is-active');
+                    });
+                });
+            });
+        </script>
+
+        <title>Newsbot - {{ .Title }}</title>
+    </head>
+    <body>
+        <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+            <div class="navbar-brand">
+                <a class="navbar-item" href="/">Newsbot</a>
+                
+                <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample" >
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>        
+            </div>
+            
+            <div id="navbarBasicExample" class="navbar-menu">
+                <div class="navbar-start">
+                    <a class="navbar-item" href="/articles/newest">Articles</a>
+                    <a class="navbar-item" href="/settings">Settings</a>
+                </div>
+            </div>
+        </nav>
+        <section class="hero is-centered is-narrow has-text-centered">
+            <div class="hero-body">
+                <p class="title">{{ .Title }}</p>
+                <p class="subtitle"> {{ .Subtitle }}</p>
+            </div>
+        </section>
+        {{ block "content" . }}
+        <!--This is a placeholder for where content should be.-->
+        {{ end }}
+        <footer class="footer">
+            <div class="content has-text-centered">
+                <p>
+                    <string>Newsbot</string> is under development! If you find any issues or have thoughts on how to improve things, very much under development and if you find any problems, please let me know!
+                </p>
+            </div>
+        </footer>
+    </body>
+</html>

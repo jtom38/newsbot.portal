@@ -1,10 +1,7 @@
-{{ define "articles.index" }}
-{{ template "header" . }}
-{{ template "hero-title" . }}
-
+{{ define "content" }}
 <div class="columns" >
     <div class="column is-one-quarter">
-        {{ template "articles.menu" . }}
+        {{ block "articles.menu" . }}{{end}}
     </div>
     <div class="column">
         <ul>
@@ -13,6 +10,4 @@
         </ul>
     </div>
 </div>
-
-{{ template "footer" . }}
 {{ end }}

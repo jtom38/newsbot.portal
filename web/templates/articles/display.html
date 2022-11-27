@@ -1,7 +1,4 @@
-{{ define "articles.display" }}
-{{ template "header" . }}
-{{ template "hero-title" . }}
-
+{{ define "content" }}
 <div class="columns" >
     <div class="column is-one-quarter">
         {{ template "articles.menu" . }}
@@ -20,15 +17,16 @@
             <br/>
             <br/>
 
-
             <div class="tags are-medium">
                 <p>Topics: </p>
-            {{ range .Topics }}
+            {{ range .Article.Tags }}
+                <span class="tag">{{ . }}</span>
+            {{ end }}
+            {{ range .Source.Tags }}
                 <span class="tag">{{ . }}</span>
             {{ end }}
             </div>
         </div>
     </div>
 </div>
-{{ template "footer" . }}
 {{ end }}

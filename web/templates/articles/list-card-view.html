@@ -1,0 +1,41 @@
+{{ define "content" }}
+<div class="columns">
+    
+    
+    
+    <div class="columns is-multiline is-2 is-desktop">
+      {{ range .Items }}
+      <div class="column is-one-third">
+
+        <div class="card">
+          <div class="card-image">
+            <figure class="image">
+              {{ if .Article.Thumbnail }}
+              <img src="{{ .Article.Thumbnail }}" alt="" width="300" height="150">
+              {{ end }}
+              {{ if not .Article.Thumbnail }}
+                No Thumb!
+              {{ end}}
+            </figure>
+          </div>
+          <div class="card-content">
+            <div class="media">
+              <div class="media-content">
+                <p class="title is-4"> <a href="{{ .Article.Url }}">{{ .Article.Title }}</a></p>
+                <p class="subtitle is-6">{{ .Source.Name }}</p>
+              </div>
+            </div>
+        
+            <div class="content">
+              <a href="#">#css</a> <a href="#">#responsive</a>
+              <br>
+              <time datetime="2016-1-1">{{ .Article.Pubdate }}</time>
+            </div>
+          </div>
+        </div>
+        
+      </div>     
+      {{ end }}
+    </div>
+</div>
+{{ end }}

@@ -1,16 +1,14 @@
-{{ define "sources.list" }}
-{{ template "header" . }}
-{{ template "hero-title" . }}
+{{ define "content" }}
 
 <div class="columns">
     <div class="column is-one-quarter m-3">
-        {{ template "settings.menu" . }}
+        {{ template "menu" . }}
     </div>
     <div class="column m-3">
 
         <nav class="level">
             <p class="level-item has-text-centered">
-                <a class="button link has-info" href="/settings/sources/{{ .Source }}/new">New</a>
+                <a class="button link has-info" href="/settings/sources/{{ .SourceName }}/new">New</a>
             </p>
         </nav>
 
@@ -24,26 +22,26 @@
             </thead>
             {{ range .Items }}
             <tr>
-                <td> <a href="{{ .Item.Url }}"> {{ .Item.Name }}</a> </td>
-                <td><strong>{{ .Item.Enabled }}</strong></td>
+                <td> <a href="{{ .Url }}"> {{ .Name }}</a> </td>
+                <td><strong>{{ .Enabled }}</strong></td>
                 <td>
                     <div class="field is-grouped">
-                        {{ if .Enabled }}
-                        <form target="_blank" action="/settings/sources/disable?id={{ .Item.ID }}" method="post">    
+                        {{ if eq true .Enabled }}
+                        <form target="_blank" action="/settings/sources/disable?id={{ .ID }}" method="post">    
                             <input class="button" type="submit" value="Disable">
                         </form>
 
-                        <form  action="/settings/sources/enable?id={{ .Item.ID }}" method="post">
+                        <form  action="/settings/sources/enable?id={{ .ID }}" method="post">
                             <input class="button" type="submit" value="Enable" disabled>
                         </form>
                         {{ end }}
 
-                        {{ if .Disabled }}
-                        <form target="_blank" action="/settings/sources/disable?id={{ .Item.ID }}" method="post">
+                        {{ if eq false .Enabled }}
+                        <form target="_blank" action="/settings/sources/disable?id={{ .ID }}" method="post">
                             <input class="button" type="submit" value="Disable" disabled>
                         </form>
 
-                        <form action="/settings/sources/enable?id={{ .Item.ID }}" method="post">
+                        <form action="/settings/sources/enable?id={{ .ID }}" method="post">
                             <input class="button" type="submit" value="Enable" >
                         </form>
                         {{ end }}
@@ -54,6 +52,4 @@
         </table>
     </div>
 </div>
-
-{{ template "footer" . }}
 {{ end }}
