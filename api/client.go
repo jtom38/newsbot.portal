@@ -12,7 +12,6 @@ type ApiClient struct {
 }
 
 func New(Endpoint string) CollectorApi {
-
 	client := http.Client{}
 	c := ApiClient{
 		endpoint: Endpoint,

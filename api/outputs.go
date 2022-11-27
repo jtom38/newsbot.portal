@@ -193,7 +193,7 @@ func (c DiscordWebHooksClient) New(server string, channel string, url string) er
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return errors.New("invalid status code")
+		return errors.New(resp.Status)
 	}
 
 	return nil

@@ -11,20 +11,26 @@ type NullString struct {
 	Valid  bool   `json:"valid"`
 }
 
+// This type contains the Article and source details together.
+type ArticleDetails struct {
+	Article Article
+	Source  Source
+}
+
 type Article struct {
-	ID          uuid.UUID  `json:"id"`
-	Sourceid    uuid.UUID  `json:"sourceid"`
-	Tags        string     `json:"tags"`
-	Title       string     `json:"title"`
-	Url         string     `json:"url"`
-	Pubdate     time.Time  `json:"pubdate"`
-	Video       NullString `json:"video"`
-	Videoheight int32      `json:"videoheight"`
-	Videowidth  int32      `json:"videowidth"`
-	Thumbnail   string     `json:"thumbnail"`
-	Description string     `json:"description"`
-	Authorname  NullString `json:"authorname"`
-	Authorimage NullString `json:"authorimage"`
+	ID          uuid.UUID
+	Sourceid    uuid.UUID
+	Tags        []string
+	Title       string
+	Url         string
+	Pubdate     time.Time
+	Video       string
+	Videoheight int32
+	Videowidth  int32
+	Thumbnail   string
+	Description string
+	Authorname  string
+	Authorimage string
 }
 
 type Discordqueue struct {
@@ -54,15 +60,15 @@ type Setting struct {
 }
 
 type Source struct {
-	ID      uuid.UUID  `json:"id"`
-	Site    string     `json:"site"`
-	Name    string     `json:"name"`
-	Source  string     `json:"source"`
-	Type    string     `json:"type"`
-	Value   NullString `json:"value"`
-	Enabled bool       `json:"enabled"`
-	Url     string     `json:"url"`
-	Tags    string     `json:"tags"`
+	ID      uuid.UUID
+	Site    string
+	Name    string
+	Source  string
+	Type    string
+	Value   string
+	Enabled bool
+	Url     string
+	Tags    []string
 }
 
 type Subscription struct {
