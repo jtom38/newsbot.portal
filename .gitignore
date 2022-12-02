@@ -2,6 +2,7 @@
 
 archive/
 __debug_bin
+portal
 
 # Binaries for programs and plugins
 *.exe

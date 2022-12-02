@@ -43,6 +43,7 @@ func (s *HttpServer) articlesRouter() http.Handler {
 type TitlesParam struct {
 	Title    string
 	Subtitle string
+	Errors   []string
 }
 
 type ErrorParam struct {
@@ -68,6 +69,7 @@ func (s *HttpServer) ArticleIndex(w http.ResponseWriter, r *http.Request) {
 type ListArticleParam struct {
 	Title    string
 	Subtitle string
+	Errors   []string
 	Items    *[]ListArticlesDetailsParam
 }
 
@@ -84,10 +86,8 @@ func (s *HttpServer) ArticleList(w http.ResponseWriter, r *http.Request) {
 
 	items, err := s.api.Articles().List()
 	if err != nil {
-		errorPage.Execute(w, ErrorParam{
-			Title: "This didn't load correctly...",
-			Error: err.Error(),
-		})
+		param.Errors = append(param.Errors, err.Error())
+		pageArticlesList.Execute(w, param)
 		return
 	}
 
@@ -155,6 +155,7 @@ func (s *HttpServer) ArticleListCards(w http.ResponseWriter, r *http.Request) {
 type ListArticleSourcesParam struct {
 	Title    string
 	Subtitle string
+	Errors   []string
 	Items    *[]api.Source
 }
 
@@ -165,16 +166,24 @@ func (s *HttpServer) ListArticleSources(w http.ResponseWriter, r *http.Request) 
 		Subtitle: "Below are the enabled news sources to pick from.",
 	}
 
+	var activeItems []api.Source
+
 	records, err := s.api.Sources().List()
 	if err != nil {
-		errorPage.Execute(w, ErrorParam{
-			Title: "Failed to fetch sources",
-			Error: err.Error(),
-		})
+		param.Errors = append(param.Errors, err.Error())
+		pageArticlesListSources.Execute(w, param)
 		return
 	}
 
-	param.Items = records
+	for _, item := range *records {
+		if !item.Enabled {
+			continue
+		}
+		activeItems = append(activeItems, item)
+	}
+
+	param.Items = &activeItems
+
 	pageArticlesListSources.Execute(w, param)
 }
 
@@ -258,6 +267,7 @@ func (s *HttpServer) CardArticlesBySource(w http.ResponseWriter, r *http.Request
 type DisplayArticleParams struct {
 	Title    string
 	Subtitle string
+	Errors   []string
 	Article  *api.Article
 	Source   *api.Source
 	Topics   []string
@@ -270,19 +280,15 @@ func (s *HttpServer) DisplayArticleById(w http.ResponseWriter, r *http.Request) 
 	id := chi.URLParam(r, "ID")
 	uuid, err := uuid.Parse(id)
 	if err != nil {
-		errorPage.Execute(w, ErrorParam{
-			Title: "Invalid ID",
-			Error: err.Error(),
-		})
+		param.Errors = append(param.Errors, err.Error())
+		pageArticlesDisplay.Execute(w, param)
 		return
 	}
 
 	article, err := s.api.Articles().Get(uuid)
 	if err != nil {
-		errorPage.Execute(w, ErrorParam{
-			Title: "Invalid Article ID",
-			Error: err.Error(),
-		})
+		param.Errors = append(param.Errors, err.Error())
+		pageArticlesDisplay.Execute(w, param)
 		return
 	}
 	param.Article = article
@@ -290,10 +296,8 @@ func (s *HttpServer) DisplayArticleById(w http.ResponseWriter, r *http.Request) 
 
 	source, err := s.api.Sources().GetById(article.Sourceid)
 	if err != nil {
-		errorPage.Execute(w, ErrorParam{
-			Title: "Invalid Source ID",
-			Error: err.Error(),
-		})
+		param.Errors = append(param.Errors, err.Error())
+		pageArticlesDisplay.Execute(w, param)
 		return
 	}
 

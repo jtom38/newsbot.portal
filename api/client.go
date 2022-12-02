@@ -16,9 +16,9 @@ func New(Endpoint string) CollectorApi {
 	c := ApiClient{
 		endpoint: Endpoint,
 
-		_articles: NewArticlesClient(Endpoint, &client),
-		_sources:  NewSourcesApiClient(Endpoint, &client),
-		_outputs:  NewOutputsApiClient(Endpoint, &client),
+		_articles:      NewArticlesClient(Endpoint, &client),
+		_sources:       NewSourcesApiClient(Endpoint, &client),
+		_outputs:       NewOutputsApiClient(Endpoint, &client),
 		_subscriptions: NewSubscriptionsClient(Endpoint, &client),
 	}
 

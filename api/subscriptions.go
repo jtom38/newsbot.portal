@@ -26,7 +26,7 @@ func (c SubscriptionsApiClient) List() (*[]Subscription, error) {
 	var items []Subscription
 
 	uri := fmt.Sprintf("%v/api/subscriptions", c.endpoint)
-	res, err := c.client.Get(uri)
+	res, err := http.Get(uri)
 	if err != nil {
 		return &items, err
 	}
@@ -38,7 +38,7 @@ func (c SubscriptionsApiClient) List() (*[]Subscription, error) {
 		return &items, err
 	}
 
-	err = json.Unmarshal(body, items)
+	err = json.Unmarshal(body, &items)
 	if err != nil {
 		return &items, err
 	}
@@ -100,6 +100,24 @@ func (c SubscriptionsApiClient) New(DiscordID uuid.UUID, SourceID uuid.UUID) err
 	if err != nil {
 		return err
 	}
+	defer res.Body.Close()
+
+	return nil
+}
+
+func (c SubscriptionsApiClient) Delete(ID uuid.UUID) error {
+	uri := fmt.Sprintf("%v/api/subscriptions/discord/webhook/delete?id=%v", c.endpoint, ID.String())
+
+	req, err := http.NewRequest("DELETE", uri, nil)
+	if err != nil {
+		return err
+	}
+
+	res, err := c.client.Do(req)
+	if err != nil {
+		return err
+	}
+
 	defer res.Body.Close()
 
 	return nil

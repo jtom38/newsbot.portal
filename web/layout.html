@@ -53,6 +53,18 @@
                 <p class="subtitle"> {{ .Subtitle }}</p>
             </div>
         </section>
+
+        {{ if .Errors }}
+        <div class="container">
+            {{ range .Errors }}
+            <div class="notification is-danger">
+                Error Message: {{ . }}
+            </div>
+            <br/>
+            {{ end }}
+        </div>
+        {{ end }}
+
         {{ block "content" . }}
         <!--This is a placeholder for where content should be.-->
         {{ end }}

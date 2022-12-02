@@ -25,6 +25,7 @@ type SourcesApi interface {
 	Delete(ID uuid.UUID) error
 	Disable(ID uuid.UUID) error
 	Enable(ID uuid.UUID) error
+	GetBySourceAndName(SourceName string, Name string) (*Source, error)
 }
 
 type OutputsApi interface {
@@ -38,6 +39,7 @@ type OutputDiscordWebHookApi interface {
 	Disable(id uuid.UUID) error
 	Enable(id uuid.UUID) error
 	New(server string, channel string, url string) error
+	GetByServerAndChannel(server string, channel string) ([]Discordwebhook, error)
 }
 
 type SubscriptionsApi interface {
@@ -45,4 +47,5 @@ type SubscriptionsApi interface {
 	GetByDiscordID(ID uuid.UUID) (*[]Subscription, error)
 	GetBySourceID(ID uuid.UUID) (*[]Subscription, error)
 	New(DiscordID uuid.UUID, SourceID uuid.UUID) error
+	Delete(ID uuid.UUID) error
 }

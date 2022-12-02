@@ -52,7 +52,7 @@ func (s *HttpServer) MountRoutes() {
 
 	settings := NewSettingsRouter(&s.api)
 	s.Router.Mount("/settings", settings.GetRouter())
-	
+
 	//s.Router.Mount("/settings/sources", s.sourcesRouter())
 	//s.Router.Mount("/settings/outputs", s.outputsRouter())
 }

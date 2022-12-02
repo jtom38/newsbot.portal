@@ -18,9 +18,9 @@ type OutputApiClient struct {
 }
 
 func NewOutputsApiClient(endpoint string, client *http.Client) OutputsApi {
-	c := OutputApiClient {
+	c := OutputApiClient{
 		endpoint: endpoint,
-		client: client,
+		client:   client,
 
 		discordWebHooks: NewDiscordWebHooksClient(endpoint, client),
 	}
@@ -31,19 +31,18 @@ func (c OutputApiClient) DiscordWebHook() OutputDiscordWebHookApi {
 	return c.discordWebHooks
 }
 
-
 type DiscordWebHooksClient struct {
 	endpoint string
 	client   *http.Client
 }
 
 func NewDiscordWebHooksClient(endpoint string, client *http.Client) OutputDiscordWebHookApi {
-	c := DiscordWebHooksClient {
+	c := DiscordWebHooksClient{
 		endpoint: endpoint,
-		client: client,
+		client:   client,
 	}
 	return c
-	
+
 }
 
 // Returns all the WebHooks known to the API.
@@ -197,4 +196,37 @@ func (c DiscordWebHooksClient) New(server string, channel string, url string) er
 	}
 
 	return nil
+}
+
+func (c DiscordWebHooksClient) GetByServerAndChannel(server string, channel string) ([]Discordwebhook, error) {
+	var items []Discordwebhook
+	uri := fmt.Sprintf("%v/api/discord/webhooks/by/serverAndChannel?server=%v&channel=%v", c.endpoint, server, channel)
+
+	req, err := http.NewRequest("Get", uri, nil)
+	if err != nil {
+		return items, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return items, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return items, errors.New(resp.Status)
+	}
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return items, err
+	}
+
+	err = json.Unmarshal(b, &items)
+	if err != nil {
+		return items, err
+	}
+
+	return items, nil
 }

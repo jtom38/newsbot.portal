@@ -48,7 +48,7 @@ func (c SourcesApiClient) List() (*[]Source, error) {
 	for _, i := range result {
 		items = append(items, c.convertFromDto(i))
 	}
- 
+
 	return &items, nil
 }
 
@@ -107,7 +107,6 @@ func (c SourcesApiClient) GetById(ID uuid.UUID) (*Source, error) {
 }
 
 func (c SourcesApiClient) NewReddit(name string, sourceUrl string) error {
-
 
 	endpoint := fmt.Sprintf("%v/api/config/sources/new/reddit?name=%v&url=%v", c.endpoint, name, url.QueryEscape(sourceUrl))
 	res, err := http.Post(endpoint, "application/json", nil)
@@ -222,6 +221,32 @@ func (c SourcesApiClient) Enable(ID uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (c SourcesApiClient) GetBySourceAndName(SourceName string, Name string) (*Source, error) {
+	var result SourceDTO
+	var items Source
+
+	uri := fmt.Sprintf("%v/api/config/sources/by/sourceAndName?source=%v&name=%v", c.endpoint, SourceName, Name)
+	res, err := http.Get(uri)
+	if err != nil {
+		return &items, err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return &items, err
+	}
+
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return &items, err
+	}
+
+	items = c.convertFromDto(result)
+
+	return &items, nil
 }
 
 func (c SourcesApiClient) convertFromDto(item SourceDTO) Source {
