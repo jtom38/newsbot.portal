@@ -652,7 +652,7 @@ func (s SettingsRouter) NewDiscordWebHookSubscriptionPost(w http.ResponseWriter,
 	}
 
 	outputSplit := strings.Split(DiscordWebHook, " // ")
-	outputRecord, err := s._api.Outputs().DiscordWebHook().GetByServerAndChannel(strings.TrimSpace( outputSplit[0]), strings.TrimSpace(outputSplit[1]))
+	outputRecord, err := s._api.Outputs().DiscordWebHook().GetByServerAndChannel(strings.TrimSpace(outputSplit[0]), strings.TrimSpace(outputSplit[1]))
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageError.Execute(w, param)

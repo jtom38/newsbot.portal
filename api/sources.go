@@ -232,7 +232,7 @@ func (c SourcesApiClient) GetBySourceAndName(SourceName string, Name string) (*S
 	uri := fmt.Sprintf("%v/api/config/sources/by/sourceAndName?source=%v&name=%v", c.endpoint, SourceName, Name)
 
 	res, err := c.rest.Get(context.Background(), RestArgs{
-		Url: uri,
+		Url:        uri,
 		StatusCode: 200,
 	})
 	if err != nil {

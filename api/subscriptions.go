@@ -52,9 +52,9 @@ func (c SubscriptionsApiClient) GetByDiscordID(ID uuid.UUID) (*[]Subscription, e
 
 	uri := fmt.Sprintf("%v/api/subscriptions/byDiscordId?id=%v", c.endpoint, ID.String())
 	res, err := c.client.Get(context.Background(), RestArgs{
-		Url: uri,
+		Url:        uri,
 		StatusCode: 200,
-		Body: nil,
+		Body:       nil,
 	})
 	if err != nil {
 		return &items, err
@@ -80,9 +80,9 @@ func (c SubscriptionsApiClient) GetBySourceID(ID uuid.UUID) (*[]Subscription, er
 
 	uri := fmt.Sprintf("%v/api/subscriptions/bySourceId?id=%v", c.endpoint, ID.String())
 	res, err := c.client.Get(context.Background(), RestArgs{
-		Url: uri,
+		Url:        uri,
 		StatusCode: 200,
-		Body: nil,
+		Body:       nil,
 	})
 	if err != nil {
 		return &items, err
@@ -107,15 +107,15 @@ func (c SubscriptionsApiClient) New(DiscordID uuid.UUID, SourceID uuid.UUID) err
 	uri := fmt.Sprintf("%v/api/subscriptions/new/discord/webhook?discordWebHookId=%v&sourceId=%v", c.endpoint, DiscordID.String(), SourceID.String())
 
 	res, err := c.client.Post(context.Background(), RestArgs{
-		Url: uri,
-		StatusCode: 200,
+		Url:         uri,
+		StatusCode:  200,
 		ContentType: ContentTypeJson,
-		Body: nil,
+		Body:        nil,
 	})
 	if err != nil {
 		return err
 	}
-	
+
 	defer res.Body.Close()
 
 	return nil
@@ -125,9 +125,9 @@ func (c SubscriptionsApiClient) Delete(ID uuid.UUID) error {
 	uri := fmt.Sprintf("%v/api/subscriptions/discord/webhook/delete?id=%v", c.endpoint, ID.String())
 
 	res, err := c.client.Delete(context.Background(), RestArgs{
-		Url: uri,
+		Url:        uri,
 		StatusCode: 200,
-		Body: nil,
+		Body:       nil,
 	})
 	if err != nil {
 		return err

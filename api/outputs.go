@@ -205,8 +205,8 @@ func (c DiscordWebHooksClient) GetByServerAndChannel(server string, channel stri
 
 	client := NewRestClient()
 	resp, err := client.Get(context.Background(), RestArgs{
-		Url: uri,
-		StatusCode: 200,
+		Url:         uri,
+		StatusCode:  200,
 		ContentType: ContentTypeJson,
 	})
 	if err != nil {
