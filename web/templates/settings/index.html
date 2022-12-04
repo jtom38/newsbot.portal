@@ -1,10 +1,8 @@
-{{ define "settings.index" }}
-{{ template "header" . }}
-{{ template "hero-title" . }}
+{{ define "content" }}
 
 <div class="columns">
     <div class="column is-one-quarter m-3">
-        {{ template "settings.menu" . }}
+        {{ template "menu" . }}
     </div>
     <div class="column m-3 ">
         <p>What is a source?  A source is location that is monitored for new news to be picked up from.  Right now, Reddit, YouTube, Twitch and Final Fantasy XIV are supported at this time!</p>
@@ -13,5 +11,4 @@
     </div>
 </div>
 
-{{ template "footer" . }}
 {{ end }}

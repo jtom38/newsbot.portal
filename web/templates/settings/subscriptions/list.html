@@ -1,0 +1,41 @@
+{{ define "content" }}
+
+<div class="columns">
+    <div class="column is-one-quarter m-3">
+        {{ template "menu" . }}
+    </div>
+    <div class="column m-3">
+
+        <nav class="level">
+            <p class="level-item has-text-centered">
+                <a class="button link has-info" href="{{ .NewHref }}">New</a>
+            </p>
+        </nav>
+
+        <table class="table is-striped is-fullwidth">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Source</th>
+                    <th>Discord Web Hook</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            {{ range .Items }}
+            <tr>
+                <td>{{ .Subscription.ID }}</a> </td>
+                <td>{{ .Source.Source }} // {{ .Source.Name }}</td>
+                <td>{{ .Output.Server }} // {{ .Output.Channel }}</td>
+                <td>
+                    <div class="field is-grouped">
+                        <form target="_blank" action="/settings/subscriptions/discord/webhooks/delete?id={{ .Subscription.ID }}" method="post">    
+                            <input class="button" type="submit" value="Delete">
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {{ end }}
+        </table>
+    </div>
+</div>
+{{ end }}

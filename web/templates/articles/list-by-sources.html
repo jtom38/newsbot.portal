@@ -1,8 +1,5 @@
 <!--Displays the articles based on the ID value given.-->
-{{ define "articles.listBySource-old" }}
-{{ template "header" . }}
-{{ template "hero-title" . }}
-
+{{ define "content" }}
 <div class="columns">
     <div class="column is-one-quarter">
         {{ template "articles.menu" . }}
@@ -21,6 +18,4 @@
         </ul>
     </div>
 </div>
-
-{{ template "footer" . }}
 {{ end }}

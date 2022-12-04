@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,18 +14,20 @@ import (
 
 type SourcesApiClient struct {
 	endpoint string
-	client *http.Client
+	client   *http.Client
+	rest     RestClient
 }
 
 func NewSourcesApiClient(endpoint string, client *http.Client) SourcesApi {
-	c := SourcesApiClient {
+	c := SourcesApiClient{
 		endpoint: endpoint,
-		client: client,
+		client:   client,
 	}
 	return c
 }
 
 func (c SourcesApiClient) List() (*[]Source, error) {
+	var result []SourceDTO
 	var items []Source
 
 	uri := fmt.Sprintf("%v/api/config/sources", c.endpoint)
@@ -39,15 +42,20 @@ func (c SourcesApiClient) List() (*[]Source, error) {
 		return &items, err
 	}
 
-	err = json.Unmarshal(body, &items)
+	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return &items, err
+	}
+
+	for _, i := range result {
+		items = append(items, c.convertFromDto(i))
 	}
 
 	return &items, nil
 }
 
 func (c SourcesApiClient) ListBySource(value string) (*[]Source, error) {
+	var result []SourceDTO
 	var items []Source
 
 	uri := fmt.Sprintf("%v/api/config/sources/by/source?source=%v", c.endpoint, value)
@@ -62,15 +70,20 @@ func (c SourcesApiClient) ListBySource(value string) (*[]Source, error) {
 		return &items, err
 	}
 
-	err = json.Unmarshal(body, &items)
+	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return &items, err
+	}
+
+	for _, i := range result {
+		items = append(items, c.convertFromDto(i))
 	}
 
 	return &items, nil
 }
 
 func (c SourcesApiClient) GetById(ID uuid.UUID) (*Source, error) {
+	var result SourceDTO
 	var items Source
 
 	uri := fmt.Sprintf("%v/api/config/sources/%v", c.endpoint, ID)
@@ -85,15 +98,18 @@ func (c SourcesApiClient) GetById(ID uuid.UUID) (*Source, error) {
 		return &items, err
 	}
 
-	err = json.Unmarshal(body, &items)
+	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return &items, err
 	}
+
+	items = c.convertFromDto(result)
 
 	return &items, nil
 }
 
 func (c SourcesApiClient) NewReddit(name string, sourceUrl string) error {
+
 	endpoint := fmt.Sprintf("%v/api/config/sources/new/reddit?name=%v&url=%v", c.endpoint, name, url.QueryEscape(sourceUrl))
 	res, err := http.Post(endpoint, "application/json", nil)
 	if err != nil {
@@ -155,7 +171,7 @@ func (c SourcesApiClient) Delete(ID uuid.UUID) error {
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	client := http.Client {}
+	client := http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
@@ -190,7 +206,7 @@ func (c SourcesApiClient) Disable(ID uuid.UUID) error {
 
 func (c SourcesApiClient) Enable(ID uuid.UUID) error {
 	endpoint := fmt.Sprintf("%v/api/config/sources/%v/enable", c.endpoint, ID)
-	
+
 	req, err := http.NewRequest("POST", endpoint, nil)
 	if err != nil {
 		return err
@@ -207,4 +223,49 @@ func (c SourcesApiClient) Enable(ID uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (c SourcesApiClient) GetBySourceAndName(SourceName string, Name string) (*Source, error) {
+	var result SourceDTO
+	var items Source
+
+	uri := fmt.Sprintf("%v/api/config/sources/by/sourceAndName?source=%v&name=%v", c.endpoint, SourceName, Name)
+
+	res, err := c.rest.Get(context.Background(), RestArgs{
+		Url:        uri,
+		StatusCode: 200,
+	})
+	if err != nil {
+		return &items, err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return &items, err
+	}
+
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return &items, err
+	}
+
+	items = c.convertFromDto(result)
+
+	return &items, nil
+}
+
+func (c SourcesApiClient) convertFromDto(item SourceDTO) Source {
+	i := Source{
+		ID:      item.ID,
+		Site:    item.Site,
+		Name:    item.Name,
+		Source:  item.Source,
+		Type:    item.Type,
+		Value:   item.Value.String,
+		Enabled: item.Enabled,
+		Url:     item.Url,
+		Tags:    splitTags(item.Tags),
+	}
+	return i
 }

@@ -1,0 +1,38 @@
+{{ define "content" }}
+<div class="columns">
+    <div class="column is-one-quarter m-3">
+        {{ template "menu" . }}
+    </div>
+    
+    <div class="column m-3">  
+
+        <form action="/settings/subscriptions/discord/webhooks/new" method="post">
+
+            <div class="field">
+                <label class="label">Source</label>
+                <div class="select">
+                    <select name="sourceName">
+                        {{ range .Sources }}
+                        <option>{{ .Source }} // {{ .Name }}</option>
+                        {{ end }}
+                    </select>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Discord Web Hooks</label>
+                <div class="select">
+                        <select name="DiscordWebHook">
+                        {{ range .Outputs }}
+                        <option>{{ .Server }} // {{ .Channel }}</option>
+                        {{ end }}
+                    </select>
+                </div>
+            </div>
+
+            <input class="button" type="submit" value="submit" onclick="window.location.href = '/settings/subscriptions/discord/webhooks/new'" >
+        </form>
+        
+    </div>
+</div>
+{{ end }}
