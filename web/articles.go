@@ -55,14 +55,14 @@ type ErrorParam struct {
 
 // /articles
 func (s *HttpServer) ArticleIndex(w http.ResponseWriter, r *http.Request) {
+	var err error
 	param := TitlesParam{
 		Title:    "Articles",
 		Subtitle: "Placeholder",
 	}
 
-	err := pageArticlesIndex.Execute(w, param)
-	if err != nil {
-		panic(err)
+	if pageArticlesIndex.Execute(w, param); err != nil {
+		log.Print(err)
 	}
 }
 

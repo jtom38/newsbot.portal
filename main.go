@@ -14,7 +14,7 @@ func main() {
 	ctx := context.Background()
 
 	c := services.NewConfigClient()
-	apiAddress := c.GetConfig(services.Config_API_Address)
+	apiAddress := c.MustGet(services.Config_API_Address)
 
 	//server := routes.NewServer(&ctx, apiAddress)
 	server := web.NewServer(ctx, apiAddress)

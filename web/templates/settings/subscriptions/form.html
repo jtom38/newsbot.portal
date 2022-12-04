@@ -13,7 +13,7 @@
                 <div class="select">
                     <select name="sourceName">
                         {{ range .Sources }}
-                        <option>{{ .Source }} - {{ .Name }}</option>
+                        <option>{{ .Source }} // {{ .Name }}</option>
                         {{ end }}
                     </select>
                 </div>
@@ -22,9 +22,9 @@
             <div class="field">
                 <label class="label">Discord Web Hooks</label>
                 <div class="select">
-                    <select name="DiscordWebHook">
+                        <select name="DiscordWebHook">
                         {{ range .Outputs }}
-                        <option>{{ .Server }} - {{ .Channel }}</option>
+                        <option>{{ .Server }} // {{ .Channel }}</option>
                         {{ end }}
                     </select>
                 </div>

@@ -24,8 +24,8 @@
             {{ range .Items }}
             <tr>
                 <td>{{ .Subscription.ID }}</a> </td>
-                <td>{{ .Source.Name }}</td>
-                <td>{{ .Output.Server }}-{{ .Output.Channel }}</td>
+                <td>{{ .Source.Source }} // {{ .Source.Name }}</td>
+                <td>{{ .Output.Server }} // {{ .Output.Channel }}</td>
                 <td>
                     <div class="field is-grouped">
                         <form target="_blank" action="/settings/subscriptions/discord/webhooks/delete?id={{ .Subscription.ID }}" method="post">    

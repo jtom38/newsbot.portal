@@ -23,7 +23,18 @@ func NewConfigClient() ConfigClient {
 	return c
 }
 
-func (cc *ConfigClient) GetConfig(key string) string {
+// This looks for the required key and returns it a a string.
+// If its not able to be found, it will panic.
+func (c ConfigClient) MustGet(key string) string {
+	res, filled := os.LookupEnv(key)
+	if !filled {
+		msg := fmt.Sprintf("Missing the a value for '%v'.  Could generate errors.", key)
+		panic(msg)
+	}
+	return res
+}
+
+func (cc *ConfigClient) Get(key string) string {
 	res, filled := os.LookupEnv(key)
 	if !filled {
 		log.Printf("Missing the a value for '%v'.  Could generate errors.", key)

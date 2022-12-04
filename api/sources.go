@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,6 +15,7 @@ import (
 type SourcesApiClient struct {
 	endpoint string
 	client   *http.Client
+	rest     RestClient
 }
 
 func NewSourcesApiClient(endpoint string, client *http.Client) SourcesApi {
@@ -228,7 +230,11 @@ func (c SourcesApiClient) GetBySourceAndName(SourceName string, Name string) (*S
 	var items Source
 
 	uri := fmt.Sprintf("%v/api/config/sources/by/sourceAndName?source=%v&name=%v", c.endpoint, SourceName, Name)
-	res, err := http.Get(uri)
+
+	res, err := c.rest.Get(context.Background(), RestArgs{
+		Url: uri,
+		StatusCode: 200,
+	})
 	if err != nil {
 		return &items, err
 	}

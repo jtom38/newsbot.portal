@@ -635,8 +635,8 @@ func (s SettingsRouter) NewDiscordWebHookSubscriptionPost(w http.ResponseWriter,
 		return
 	}
 
-	stringSplit := strings.Split(source, "-")
-	sourceRecord, err := s._api.Sources().GetBySourceAndName(stringSplit[0], stringSplit[1])
+	stringSplit := strings.Split(source, " // ")
+	sourceRecord, err := s._api.Sources().GetBySourceAndName(strings.TrimSpace(stringSplit[0]), strings.TrimSpace(stringSplit[1]))
 	if err != nil {
 		param.Errors = append(param.Errors, "The ID value is missing.")
 		pageError.Execute(w, param)
@@ -651,8 +651,8 @@ func (s SettingsRouter) NewDiscordWebHookSubscriptionPost(w http.ResponseWriter,
 		return
 	}
 
-	outputSplit := strings.Split(DiscordWebHook, "-")
-	outputRecord, err := s._api.Outputs().DiscordWebHook().GetByServerAndChannel(outputSplit[0], outputSplit[1])
+	outputSplit := strings.Split(DiscordWebHook, " // ")
+	outputRecord, err := s._api.Outputs().DiscordWebHook().GetByServerAndChannel(strings.TrimSpace( outputSplit[0]), strings.TrimSpace(outputSplit[1]))
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageError.Execute(w, param)

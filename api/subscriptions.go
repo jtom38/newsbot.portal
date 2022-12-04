@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,13 +12,13 @@ import (
 
 type SubscriptionsApiClient struct {
 	endpoint string
-	client   *http.Client
+	client   RestClient
 }
 
 func NewSubscriptionsClient(endpoint string, client *http.Client) SubscriptionsApiClient {
 	c := SubscriptionsApiClient{
 		endpoint: endpoint,
-		client:   client,
+		client:   NewRestClient(),
 	}
 	return c
 }
@@ -50,7 +51,11 @@ func (c SubscriptionsApiClient) GetByDiscordID(ID uuid.UUID) (*[]Subscription, e
 	var items []Subscription
 
 	uri := fmt.Sprintf("%v/api/subscriptions/byDiscordId?id=%v", c.endpoint, ID.String())
-	res, err := c.client.Get(uri)
+	res, err := c.client.Get(context.Background(), RestArgs{
+		Url: uri,
+		StatusCode: 200,
+		Body: nil,
+	})
 	if err != nil {
 		return &items, err
 	}
@@ -62,7 +67,7 @@ func (c SubscriptionsApiClient) GetByDiscordID(ID uuid.UUID) (*[]Subscription, e
 		return &items, err
 	}
 
-	err = json.Unmarshal(body, items)
+	err = json.Unmarshal(body, &items)
 	if err != nil {
 		return &items, err
 	}
@@ -74,7 +79,11 @@ func (c SubscriptionsApiClient) GetBySourceID(ID uuid.UUID) (*[]Subscription, er
 	var items []Subscription
 
 	uri := fmt.Sprintf("%v/api/subscriptions/bySourceId?id=%v", c.endpoint, ID.String())
-	res, err := c.client.Get(uri)
+	res, err := c.client.Get(context.Background(), RestArgs{
+		Url: uri,
+		StatusCode: 200,
+		Body: nil,
+	})
 	if err != nil {
 		return &items, err
 	}
@@ -86,7 +95,7 @@ func (c SubscriptionsApiClient) GetBySourceID(ID uuid.UUID) (*[]Subscription, er
 		return &items, err
 	}
 
-	err = json.Unmarshal(body, items)
+	err = json.Unmarshal(body, &items)
 	if err != nil {
 		return &items, err
 	}
@@ -95,11 +104,18 @@ func (c SubscriptionsApiClient) GetBySourceID(ID uuid.UUID) (*[]Subscription, er
 }
 
 func (c SubscriptionsApiClient) New(DiscordID uuid.UUID, SourceID uuid.UUID) error {
-	uri := fmt.Sprintf("%v/api/subscriptions/new/discordwebhookd?discordWebHookId=%v&sourceId=%v", c.endpoint, DiscordID.String(), SourceID.String())
-	res, err := c.client.Post(uri, "application/json", nil)
+	uri := fmt.Sprintf("%v/api/subscriptions/new/discord/webhook?discordWebHookId=%v&sourceId=%v", c.endpoint, DiscordID.String(), SourceID.String())
+
+	res, err := c.client.Post(context.Background(), RestArgs{
+		Url: uri,
+		StatusCode: 200,
+		ContentType: ContentTypeJson,
+		Body: nil,
+	})
 	if err != nil {
 		return err
 	}
+	
 	defer res.Body.Close()
 
 	return nil
@@ -108,12 +124,11 @@ func (c SubscriptionsApiClient) New(DiscordID uuid.UUID, SourceID uuid.UUID) err
 func (c SubscriptionsApiClient) Delete(ID uuid.UUID) error {
 	uri := fmt.Sprintf("%v/api/subscriptions/discord/webhook/delete?id=%v", c.endpoint, ID.String())
 
-	req, err := http.NewRequest("DELETE", uri, nil)
-	if err != nil {
-		return err
-	}
-
-	res, err := c.client.Do(req)
+	res, err := c.client.Delete(context.Background(), RestArgs{
+		Url: uri,
+		StatusCode: 200,
+		Body: nil,
+	})
 	if err != nil {
 		return err
 	}

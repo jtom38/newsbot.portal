@@ -15,14 +15,16 @@
         <table class="table is-striped is-fullwidth">
             <thead>
                 <tr>
-                    <th>Name</th>
+                    <th>Server</th>
+                    <th>Channel</th>
                     <th>Enabled</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             {{ range .Items }}
             <tr>
-                <td>{{ .Server }}-{{ .Channel }}</td>
+                <td>{{ .Server }}</td>
+                <td>{{ .Channel }}</td>
                 <td><strong>{{ .Enabled }}</strong></td>
                 <td>
                     <div class="field is-grouped">

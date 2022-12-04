@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -202,21 +203,17 @@ func (c DiscordWebHooksClient) GetByServerAndChannel(server string, channel stri
 	var items []Discordwebhook
 	uri := fmt.Sprintf("%v/api/discord/webhooks/by/serverAndChannel?server=%v&channel=%v", c.endpoint, server, channel)
 
-	req, err := http.NewRequest("Get", uri, nil)
+	client := NewRestClient()
+	resp, err := client.Get(context.Background(), RestArgs{
+		Url: uri,
+		StatusCode: 200,
+		ContentType: ContentTypeJson,
+	})
 	if err != nil {
 		return items, err
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.client.Do(req)
-	if err != nil {
-		return items, err
-	}
 	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return items, errors.New(resp.Status)
-	}
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
