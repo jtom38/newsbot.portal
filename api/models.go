@@ -69,6 +69,7 @@ type Source struct {
 	Enabled bool
 	Url     string
 	Tags    []string
+	Deleted bool
 }
 
 type Subscription struct {

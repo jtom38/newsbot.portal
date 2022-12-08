@@ -27,7 +27,7 @@ func NewSourcesApiClient(endpoint string, client *http.Client) SourcesApi {
 }
 
 func (c SourcesApiClient) List() (*[]Source, error) {
-	var result []SourceDTO
+	//var result []SourceDTO
 	var items []Source
 
 	uri := fmt.Sprintf("%v/api/config/sources", c.endpoint)
@@ -42,14 +42,14 @@ func (c SourcesApiClient) List() (*[]Source, error) {
 		return &items, err
 	}
 
-	err = json.Unmarshal(body, &result)
+	err = json.Unmarshal(body, &items)
 	if err != nil {
 		return &items, err
 	}
 
-	for _, i := range result {
-		items = append(items, c.convertFromDto(i))
-	}
+	//for _, i := range result {
+	//	items = append(items, c.convertFromDto(i))
+	//}
 
 	return &items, nil
 }
