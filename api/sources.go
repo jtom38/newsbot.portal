@@ -13,15 +13,18 @@ import (
 )
 
 type SourcesApiClient struct {
-	endpoint string
-	client   *http.Client
-	rest     RestClient
+	apiServer string
+	routeRoot string
+
+	client *http.Client
+	rest   RestClient
 }
 
-func NewSourcesApiClient(endpoint string, client *http.Client) SourcesApi {
+func NewSourcesApiClient(serverAddress string, client *http.Client) SourcesApi {
 	c := SourcesApiClient{
-		endpoint: endpoint,
-		client:   client,
+		apiServer: serverAddress,
+		routeRoot: "api/sources/",
+		client:    client,
 	}
 	return c
 }
@@ -30,7 +33,7 @@ func (c SourcesApiClient) List() (*[]Source, error) {
 	//var result []SourceDTO
 	var items []Source
 
-	uri := fmt.Sprintf("%v/api/config/sources", c.endpoint)
+	uri := fmt.Sprintf("%v/%v", c.apiServer, c.routeRoot)
 	res, err := http.Get(uri)
 	if err != nil {
 		return &items, err
@@ -58,7 +61,7 @@ func (c SourcesApiClient) ListBySource(value string) (*[]Source, error) {
 	var result []SourceDTO
 	var items []Source
 
-	uri := fmt.Sprintf("%v/api/config/sources/by/source?source=%v", c.endpoint, value)
+	uri := fmt.Sprintf("%v/%v/by/source?source=%v", c.apiServer, c.routeRoot , value)
 	res, err := http.Get(uri)
 	if err != nil {
 		return &items, err
@@ -86,7 +89,7 @@ func (c SourcesApiClient) GetById(ID uuid.UUID) (*Source, error) {
 	var result SourceDTO
 	var items Source
 
-	uri := fmt.Sprintf("%v/api/config/sources/%v", c.endpoint, ID)
+	uri := fmt.Sprintf("%v/%v/%v", c.apiServer, c.routeRoot, ID)
 	res, err := http.Get(uri)
 	if err != nil {
 		return &items, err
@@ -109,8 +112,7 @@ func (c SourcesApiClient) GetById(ID uuid.UUID) (*Source, error) {
 }
 
 func (c SourcesApiClient) NewReddit(name string, sourceUrl string) error {
-
-	endpoint := fmt.Sprintf("%v/api/config/sources/new/reddit?name=%v&url=%v", c.endpoint, name, url.QueryEscape(sourceUrl))
+	endpoint := fmt.Sprintf("%v/%v/new/reddit?name=%v&url=%v", c.apiServer, c.routeRoot, name, url.QueryEscape(sourceUrl))
 	res, err := http.Post(endpoint, "application/json", nil)
 	if err != nil {
 		return err
@@ -124,7 +126,7 @@ func (c SourcesApiClient) NewReddit(name string, sourceUrl string) error {
 }
 
 func (c SourcesApiClient) NewYouTube(Name string, Url string) error {
-	endpoint := fmt.Sprintf("%v/api/config/sources/new/youtube?name=%v&url=%v", c.endpoint, Name, url.QueryEscape(Url))
+	endpoint := fmt.Sprintf("%v/%v/new/youtube?name=%v&url=%v", c.apiServer, c.routeRoot, Name, url.QueryEscape(Url))
 	req, err := http.NewRequest("POST", endpoint, nil)
 	if err != nil {
 		return err
@@ -144,7 +146,7 @@ func (c SourcesApiClient) NewYouTube(Name string, Url string) error {
 }
 
 func (c SourcesApiClient) NewTwitch(Name string) error {
-	endpoint := fmt.Sprintf("%v/api/config/sources/new/twitch?name=%v", c.endpoint, Name)
+	endpoint := fmt.Sprintf("%v/%v/new/twitch?name=%v", c.apiServer, c.routeRoot, Name)
 	req, err := http.NewRequest("POST", endpoint, nil)
 	if err != nil {
 		return err
@@ -164,7 +166,7 @@ func (c SourcesApiClient) NewTwitch(Name string) error {
 }
 
 func (c SourcesApiClient) Delete(ID uuid.UUID) error {
-	endpoint := fmt.Sprintf("%v/api/config/sources/%v", c.endpoint, ID)
+	endpoint := fmt.Sprintf("%v/%v/%v", c.apiServer, c.routeRoot, ID)
 	req, err := http.NewRequest("DELETE", endpoint, nil)
 	if err != nil {
 		return err
@@ -185,7 +187,7 @@ func (c SourcesApiClient) Delete(ID uuid.UUID) error {
 }
 
 func (c SourcesApiClient) Disable(ID uuid.UUID) error {
-	endpoint := fmt.Sprintf("%v/api/config/sources/%v/disable", c.endpoint, ID)
+	endpoint := fmt.Sprintf("%v/%v/%v/disable", c.apiServer, c.routeRoot, ID)
 	req, err := http.NewRequest("POST", endpoint, nil)
 	if err != nil {
 		return err
@@ -205,7 +207,7 @@ func (c SourcesApiClient) Disable(ID uuid.UUID) error {
 }
 
 func (c SourcesApiClient) Enable(ID uuid.UUID) error {
-	endpoint := fmt.Sprintf("%v/api/config/sources/%v/enable", c.endpoint, ID)
+	endpoint := fmt.Sprintf("%v/%v/%v/enable", c.apiServer, c.routeRoot, ID)
 
 	req, err := http.NewRequest("POST", endpoint, nil)
 	if err != nil {
@@ -229,7 +231,7 @@ func (c SourcesApiClient) GetBySourceAndName(SourceName string, Name string) (*S
 	var result SourceDTO
 	var items Source
 
-	uri := fmt.Sprintf("%v/api/config/sources/by/sourceAndName?source=%v&name=%v", c.endpoint, SourceName, Name)
+	uri := fmt.Sprintf("%v/%v/by/sourceAndName?source=%v&name=%v", c.apiServer, c.routeRoot, SourceName, Name)
 
 	res, err := c.rest.Get(context.Background(), RestArgs{
 		Url:        uri,
