@@ -29,9 +29,14 @@ func NewSourcesApiClient(serverAddress string, client *http.Client) SourcesApi {
 	return c
 }
 
-func (c SourcesApiClient) List() (*[]Source, error) {
-	//var result []SourceDTO
-	var items []Source
+type ListSourcesResult struct {
+	Message string   `json:"message"`
+	Status  int      `json:"status"`
+	Payload []Source `json:"payload"`
+}
+
+func (c SourcesApiClient) List() (*ListSourcesResult, error) {
+	var items ListSourcesResult
 
 	uri := fmt.Sprintf("%v/%v", c.apiServer, c.routeRoot)
 	res, err := http.Get(uri)
@@ -57,9 +62,8 @@ func (c SourcesApiClient) List() (*[]Source, error) {
 	return &items, nil
 }
 
-func (c SourcesApiClient) ListBySource(value string) (*[]Source, error) {
-	var result []SourceDTO
-	var items []Source
+func (c SourcesApiClient) ListBySource(value string) (*ListSourcesResult, error) {
+	var items ListSourcesResult
 
 	uri := fmt.Sprintf("%v/%v/by/source?source=%v", c.apiServer, c.routeRoot, value)
 	res, err := http.Get(uri)
@@ -73,21 +77,26 @@ func (c SourcesApiClient) ListBySource(value string) (*[]Source, error) {
 		return &items, err
 	}
 
-	err = json.Unmarshal(body, &result)
+	err = json.Unmarshal(body, &items)
 	if err != nil {
 		return &items, err
 	}
 
-	for _, i := range result {
-		items = append(items, c.convertFromDto(i))
-	}
+	//for _, i := range result {
+	//	items = append(items, c.convertFromDto(i))
+	//}
 
 	return &items, nil
 }
 
-func (c SourcesApiClient) GetById(ID uuid.UUID) (*Source, error) {
-	var result SourceDTO
-	var items Source
+type SingleSourcesResult struct {
+	Message string   `json:"message"`
+	Status  int      `json:"status"`
+	Payload Source `json:"payload"`
+}
+
+func (c SourcesApiClient) GetById(ID uuid.UUID) (*SingleSourcesResult, error) {
+	var items SingleSourcesResult
 
 	uri := fmt.Sprintf("%v/%v/%v", c.apiServer, c.routeRoot, ID)
 	res, err := http.Get(uri)
@@ -101,15 +110,41 @@ func (c SourcesApiClient) GetById(ID uuid.UUID) (*Source, error) {
 		return &items, err
 	}
 
-	err = json.Unmarshal(body, &result)
+	err = json.Unmarshal(body, &items)
 	if err != nil {
 		return &items, err
 	}
 
-	items = c.convertFromDto(result)
+	return &items, nil
+}
+
+func (c SourcesApiClient) GetBySourceAndName(SourceName string, Name string) (*SingleSourcesResult, error) {
+	var items SingleSourcesResult
+
+	uri := fmt.Sprintf("%v/%v/by/sourceAndName?source=%v&name=%v", c.apiServer, c.routeRoot, SourceName, Name)
+
+	res, err := c.rest.Get(context.Background(), RestArgs{
+		Url:        uri,
+		StatusCode: 200,
+	})
+	if err != nil {
+		return &items, err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return &items, err
+	}
+
+	err = json.Unmarshal(body, &items)
+	if err != nil {
+		return &items, err
+	}
 
 	return &items, nil
 }
+
 
 func (c SourcesApiClient) NewReddit(name string, sourceUrl string) error {
 	endpoint := fmt.Sprintf("%v/%v/new/reddit?name=%v&url=%v", c.apiServer, c.routeRoot, name, url.QueryEscape(sourceUrl))
@@ -225,49 +260,4 @@ func (c SourcesApiClient) Enable(ID uuid.UUID) error {
 	}
 
 	return nil
-}
-
-func (c SourcesApiClient) GetBySourceAndName(SourceName string, Name string) (*Source, error) {
-	var result SourceDTO
-	var items Source
-
-	uri := fmt.Sprintf("%v/%v/by/sourceAndName?source=%v&name=%v", c.apiServer, c.routeRoot, SourceName, Name)
-
-	res, err := c.rest.Get(context.Background(), RestArgs{
-		Url:        uri,
-		StatusCode: 200,
-	})
-	if err != nil {
-		return &items, err
-	}
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return &items, err
-	}
-
-	err = json.Unmarshal(body, &result)
-	if err != nil {
-		return &items, err
-	}
-
-	items = c.convertFromDto(result)
-
-	return &items, nil
-}
-
-func (c SourcesApiClient) convertFromDto(item SourceDTO) Source {
-	i := Source{
-		ID:      item.ID,
-		Site:    item.Site,
-		Name:    item.Name,
-		Source:  item.Source,
-		Type:    item.Type,
-		Value:   item.Value.String,
-		Enabled: item.Enabled,
-		Url:     item.Url,
-		Tags:    splitTags(item.Tags),
-	}
-	return i
 }

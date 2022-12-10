@@ -206,7 +206,7 @@ func (s SettingsRouter) ListReddit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	param.Items = items
+	param.Items = &items.Payload
 
 	if pageSettingSourcesList.Execute(w, param); err != nil {
 		log.Print(err)
@@ -227,7 +227,7 @@ func (s SettingsRouter) ListYoutube(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	param.Items = items
+	param.Items = &items.Payload
 
 	if pageSettingSourcesList.Execute(w, param); err != nil {
 		log.Print(err)
@@ -248,7 +248,7 @@ func (s SettingsRouter) ListTwitch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	param.Items = items
+	param.Items = &items.Payload
 
 	if pageSettingSourcesList.Execute(w, param); err != nil {
 		log.Print(err)
@@ -269,7 +269,7 @@ func (s SettingsRouter) ListFfxiv(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	param.Items = items
+	param.Items = &items.Payload
 
 	if pageSettingSourcesList.Execute(w, param); err != nil {
 		log.Print(err)
@@ -568,7 +568,7 @@ func (s SettingsRouter) ListDiscordWebHookSubscriptions(w http.ResponseWriter, r
 
 		d := ListSubscriptionsDetailsParam{
 			Subscription: sub,
-			Source:       *sourceDetails,
+			Source:       *&sourceDetails.Payload,
 			Output:       *outputDetails,
 		}
 
@@ -608,7 +608,7 @@ func (s SettingsRouter) NewDiscordWebHookSubscriptionForm(w http.ResponseWriter,
 	}
 
 	param.Outputs = *outputs
-	param.Sources = *sources
+	param.Sources = sources.Payload
 
 	if pageSettingsSubscriptionsForm.Execute(w, param); err != nil {
 		log.Print(err)
@@ -659,7 +659,7 @@ func (s SettingsRouter) NewDiscordWebHookSubscriptionPost(w http.ResponseWriter,
 		return
 	}
 
-	err = s._api.Subscriptions().New(outputRecord[0].ID, sourceRecord.ID)
+	err = s._api.Subscriptions().New(outputRecord[0].ID, sourceRecord.Payload.ID)
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageError.Execute(w, param)

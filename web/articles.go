@@ -101,7 +101,7 @@ func (s *HttpServer) ArticleList(w http.ResponseWriter, r *http.Request) {
 		s := *source
 
 		d := ListArticlesDetailsParam{
-			Source:  s,
+			Source:  s.Payload,
 			Article: item,
 		}
 		details = append(details, d)
@@ -136,7 +136,7 @@ func (s *HttpServer) ArticleListCards(w http.ResponseWriter, r *http.Request) {
 		s := *source
 
 		d := ListArticlesDetailsParam{
-			Source:  s,
+			Source:  s.Payload,
 			Article: item,
 		}
 		details = append(details, d)
@@ -175,7 +175,7 @@ func (s *HttpServer) ListArticleSources(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	for _, item := range *records {
+	for _, item := range records.Payload {
 		if !item.Enabled {
 			continue
 		}
@@ -204,7 +204,7 @@ func (s *HttpServer) getArticlesBySourceId(ID uuid.UUID) ([]ListArticlesDetailsP
 		s := *source
 
 		d := ListArticlesDetailsParam{
-			Source:  s,
+			Source:  s.Payload,
 			Article: item,
 		}
 
@@ -301,7 +301,7 @@ func (s *HttpServer) DisplayArticleById(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	param.Source = source
-	param.Subtitle = fmt.Sprintf("%v - %v", strings.ToUpper(source.Name), strings.ToUpper(source.Source))
+	param.Source = &source.Payload
+	param.Subtitle = fmt.Sprintf("%v - %v", strings.ToUpper(source.Payload.Name), strings.ToUpper(source.Payload.Source))
 	pageArticlesDisplay.Execute(w, param)
 }
