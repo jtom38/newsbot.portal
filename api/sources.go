@@ -61,7 +61,7 @@ func (c SourcesApiClient) ListBySource(value string) (*[]Source, error) {
 	var result []SourceDTO
 	var items []Source
 
-	uri := fmt.Sprintf("%v/%v/by/source?source=%v", c.apiServer, c.routeRoot , value)
+	uri := fmt.Sprintf("%v/%v/by/source?source=%v", c.apiServer, c.routeRoot, value)
 	res, err := http.Get(uri)
 	if err != nil {
 		return &items, err

@@ -11,13 +11,15 @@ import (
 )
 
 type SubscriptionsApiClient struct {
-	endpoint string
-	client   RestClient
+	endpoint   string
+	routeRoute string
+	client     RestClient
 }
 
 func NewSubscriptionsClient(endpoint string, client *http.Client) SubscriptionsApiClient {
 	c := SubscriptionsApiClient{
 		endpoint: endpoint,
+		routeRoute: "api/subscriptions",
 		client:   NewRestClient(),
 	}
 	return c
@@ -26,7 +28,7 @@ func NewSubscriptionsClient(endpoint string, client *http.Client) SubscriptionsA
 func (c SubscriptionsApiClient) List() (*[]Subscription, error) {
 	var items []Subscription
 
-	uri := fmt.Sprintf("%v/api/subscriptions", c.endpoint)
+	uri := fmt.Sprintf("%v/%v", c.endpoint, c.routeRoute)
 	res, err := http.Get(uri)
 	if err != nil {
 		return &items, err
@@ -50,7 +52,7 @@ func (c SubscriptionsApiClient) List() (*[]Subscription, error) {
 func (c SubscriptionsApiClient) GetByDiscordID(ID uuid.UUID) (*[]Subscription, error) {
 	var items []Subscription
 
-	uri := fmt.Sprintf("%v/api/subscriptions/byDiscordId?id=%v", c.endpoint, ID.String())
+	uri := fmt.Sprintf("%v/%v/by/discordId?id=%v", c.endpoint, c.routeRoute, ID.String())
 	res, err := c.client.Get(context.Background(), RestArgs{
 		Url:        uri,
 		StatusCode: 200,
@@ -78,7 +80,7 @@ func (c SubscriptionsApiClient) GetByDiscordID(ID uuid.UUID) (*[]Subscription, e
 func (c SubscriptionsApiClient) GetBySourceID(ID uuid.UUID) (*[]Subscription, error) {
 	var items []Subscription
 
-	uri := fmt.Sprintf("%v/api/subscriptions/bySourceId?id=%v", c.endpoint, ID.String())
+	uri := fmt.Sprintf("%v/%v/by/SourceId?id=%v", c.endpoint, c.routeRoute, ID.String())
 	res, err := c.client.Get(context.Background(), RestArgs{
 		Url:        uri,
 		StatusCode: 200,
@@ -104,7 +106,7 @@ func (c SubscriptionsApiClient) GetBySourceID(ID uuid.UUID) (*[]Subscription, er
 }
 
 func (c SubscriptionsApiClient) New(DiscordID uuid.UUID, SourceID uuid.UUID) error {
-	uri := fmt.Sprintf("%v/api/subscriptions/new/discord/webhook?discordWebHookId=%v&sourceId=%v", c.endpoint, DiscordID.String(), SourceID.String())
+	uri := fmt.Sprintf("%v/%v/discord/webhook/new?discordWebHookId=%v&sourceId=%v", c.endpoint, c.routeRoute, DiscordID.String(), SourceID.String())
 
 	res, err := c.client.Post(context.Background(), RestArgs{
 		Url:         uri,
@@ -122,7 +124,7 @@ func (c SubscriptionsApiClient) New(DiscordID uuid.UUID, SourceID uuid.UUID) err
 }
 
 func (c SubscriptionsApiClient) Delete(ID uuid.UUID) error {
-	uri := fmt.Sprintf("%v/api/subscriptions/discord/webhook/delete?id=%v", c.endpoint, ID.String())
+	uri := fmt.Sprintf("%v/%v/discord/webhook/delete?id=%v", c.endpoint, c.routeRoute, ID.String())
 
 	res, err := c.client.Delete(context.Background(), RestArgs{
 		Url:        uri,
