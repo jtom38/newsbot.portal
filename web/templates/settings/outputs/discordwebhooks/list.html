@@ -29,26 +29,26 @@
                 <td>
                     <div class="field is-grouped">
                         {{ if eq true .Enabled }}
-                        <form action="/settings/outputs/discord/webhooks/{{ .ID }}/disable" method="post">
+                        <form action="/settings/outputs/discord/webhooks/disable?id={{ .ID }}" method="post">
                             <input class="button" type="submit" value="Disable">
                         </form>
 
-                        <form action="/settings/outputs/discord/webhooks/{{ .ID }}/enable" method="post">
+                        <form action="/settings/outputs/discord/webhooks/enable?id={{ .ID }}" method="post">
                             <input class="button" type="submit" value="Enable" disabled>
                         </form>
                         {{ end }}
 
                         {{ if eq false .Enabled }}
-                        <form target="_blank" action="/settings/outputs/discord/webhooks/{{ .ID }}/disable" method="post">
+                        <form target="_blank" action="/settings/outputs/discord/webhooks/disable?id={{ .ID }}" method="post">
                             <input class="button" type="submit" value="Disable" disabled>
                         </form>
 
-                        <form action="/settings/outputs/discord/webhooks/{{ .ID }}/enable" method="post">
+                        <form action="/settings/outputs/discord/webhooks/enable?id={{ .ID }}" method="post">
                             <input class="button" type="submit" value="Enable" >
                         </form>
                         {{ end }}
 
-                        <form action="/settings/outputs/discord/webhooks/{{ .ID }}/edit" method="post">
+                        <form action="/settings/outputs/discord/webhooks/edit?id={{ .ID }}" method="post">
                             <input class="button" type="submit" value="Edit">
                         </form>
                     </div>
