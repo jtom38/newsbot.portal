@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 
@@ -13,259 +12,227 @@ import (
 )
 
 type SourcesApiClient struct {
-	endpoint string
-	client   *http.Client
-	rest     RestClient
+	apiServer string
+	routeRoot string
+
+	rest RestClient
 }
 
-func NewSourcesApiClient(endpoint string, client *http.Client) SourcesApi {
+func NewSourcesApiClient(serverAddress string) SourcesApiClient {
 	c := SourcesApiClient{
-		endpoint: endpoint,
-		client:   client,
+		apiServer: serverAddress,
+		routeRoot: "api/sources",
 	}
 	return c
 }
 
-func (c SourcesApiClient) List() (*[]Source, error) {
-	//var result []SourceDTO
-	var items []Source
+type listSourcesResult struct {
+	Message string   `json:"message"`
+	Status  int      `json:"status"`
+	Payload []Source `json:"payload"`
+}
 
-	uri := fmt.Sprintf("%v/api/config/sources", c.endpoint)
-	res, err := http.Get(uri)
+func (c SourcesApiClient) List(ctx context.Context) (*[]Source, error) {
+	var items listSourcesResult
+
+	uri := fmt.Sprintf("%v/%v", c.apiServer, c.routeRoot)
+	data, err := c.rest.Get(ctx, RestArgs{
+		Url:         uri,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
 	if err != nil {
-		return &items, err
+		return &items.Payload, err
 	}
-	defer res.Body.Close()
 
-	body, err := io.ReadAll(res.Body)
+	err = json.Unmarshal(data, &items)
 	if err != nil {
-		return &items, err
+		return &items.Payload, err
+	}
+
+	return &items.Payload, nil
+}
+
+func (c SourcesApiClient) ListBySource(ctx context.Context, value string) (*[]Source, error) {
+	var items listSourcesResult
+
+	uri := fmt.Sprintf("%v/%v/by/source?source=%v", c.apiServer, c.routeRoot, value)
+
+	data, err := c.rest.Get(ctx, RestArgs{
+		Url:         uri,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
+	if err != nil {
+		return &items.Payload, err
+	}
+
+	err = json.Unmarshal(data, &items)
+	if err != nil {
+		return &items.Payload, err
+	}
+
+	return &items.Payload, nil
+}
+
+type singleSourcesResult struct {
+	Message string `json:"message"`
+	Status  int    `json:"status"`
+	Payload Source `json:"payload"`
+}
+
+func (c SourcesApiClient) GetById(ctx context.Context, ID uuid.UUID) (*Source, error) {
+	var items singleSourcesResult
+
+	uri := fmt.Sprintf("%v/%v/%v", c.apiServer, c.routeRoot, ID)
+	body, err := c.rest.Get(ctx, RestArgs{
+		Url:         uri,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
+	if err != nil {
+		return &items.Payload, err
 	}
 
 	err = json.Unmarshal(body, &items)
 	if err != nil {
-		return &items, err
+		return &items.Payload, err
 	}
 
-	//for _, i := range result {
-	//	items = append(items, c.convertFromDto(i))
-	//}
-
-	return &items, nil
+	return &items.Payload, nil
 }
 
-func (c SourcesApiClient) ListBySource(value string) (*[]Source, error) {
-	var result []SourceDTO
-	var items []Source
+func (c SourcesApiClient) GetBySourceAndName(ctx context.Context, SourceName string, Name string) (*Source, error) {
+	var items singleSourcesResult
 
-	uri := fmt.Sprintf("%v/api/config/sources/by/source?source=%v", c.endpoint, value)
-	res, err := http.Get(uri)
-	if err != nil {
-		return &items, err
-	}
-	defer res.Body.Close()
+	uri := fmt.Sprintf("%v/%v/by/sourceAndName?source=%v&name=%v", c.apiServer, c.routeRoot, SourceName, Name)
 
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return &items, err
-	}
-
-	err = json.Unmarshal(body, &result)
-	if err != nil {
-		return &items, err
-	}
-
-	for _, i := range result {
-		items = append(items, c.convertFromDto(i))
-	}
-
-	return &items, nil
-}
-
-func (c SourcesApiClient) GetById(ID uuid.UUID) (*Source, error) {
-	var result SourceDTO
-	var items Source
-
-	uri := fmt.Sprintf("%v/api/config/sources/%v", c.endpoint, ID)
-	res, err := http.Get(uri)
-	if err != nil {
-		return &items, err
-	}
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return &items, err
-	}
-
-	err = json.Unmarshal(body, &result)
-	if err != nil {
-		return &items, err
-	}
-
-	items = c.convertFromDto(result)
-
-	return &items, nil
-}
-
-func (c SourcesApiClient) NewReddit(name string, sourceUrl string) error {
-
-	endpoint := fmt.Sprintf("%v/api/config/sources/new/reddit?name=%v&url=%v", c.endpoint, name, url.QueryEscape(sourceUrl))
-	res, err := http.Post(endpoint, "application/json", nil)
-	if err != nil {
-		return err
-	}
-
-	if res.StatusCode != 200 {
-		return errors.New("unexpected status code")
-	}
-
-	return nil
-}
-
-func (c SourcesApiClient) NewYouTube(Name string, Url string) error {
-	endpoint := fmt.Sprintf("%v/api/config/sources/new/youtube?name=%v&url=%v", c.endpoint, Name, url.QueryEscape(Url))
-	req, err := http.NewRequest("POST", endpoint, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	res, err := c.client.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if res.StatusCode != 200 {
-		return errors.New("unexpected status code")
-	}
-
-	return nil
-}
-
-func (c SourcesApiClient) NewTwitch(Name string) error {
-	endpoint := fmt.Sprintf("%v/api/config/sources/new/twitch?name=%v", c.endpoint, Name)
-	req, err := http.NewRequest("POST", endpoint, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	res, err := c.client.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if res.StatusCode != 200 {
-		return errors.New("unexpected status code")
-	}
-
-	return nil
-}
-
-func (c SourcesApiClient) Delete(ID uuid.UUID) error {
-	endpoint := fmt.Sprintf("%v/api/config/sources/%v", c.endpoint, ID)
-	req, err := http.NewRequest("DELETE", endpoint, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	client := http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode != 200 {
-		return errors.New("invalid status code")
-	}
-
-	return nil
-}
-
-func (c SourcesApiClient) Disable(ID uuid.UUID) error {
-	endpoint := fmt.Sprintf("%v/api/config/sources/%v/disable", c.endpoint, ID)
-	req, err := http.NewRequest("POST", endpoint, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := c.client.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode != 200 {
-		return errors.New("invalid status code")
-	}
-
-	return nil
-}
-
-func (c SourcesApiClient) Enable(ID uuid.UUID) error {
-	endpoint := fmt.Sprintf("%v/api/config/sources/%v/enable", c.endpoint, ID)
-
-	req, err := http.NewRequest("POST", endpoint, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := c.client.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode != 200 {
-		return errors.New("invalid status code")
-	}
-
-	return nil
-}
-
-func (c SourcesApiClient) GetBySourceAndName(SourceName string, Name string) (*Source, error) {
-	var result SourceDTO
-	var items Source
-
-	uri := fmt.Sprintf("%v/api/config/sources/by/sourceAndName?source=%v&name=%v", c.endpoint, SourceName, Name)
-
-	res, err := c.rest.Get(context.Background(), RestArgs{
-		Url:        uri,
-		StatusCode: 200,
+	body, err := c.rest.Get(ctx, RestArgs{
+		Url:         uri,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
 	})
 	if err != nil {
-		return &items, err
+		return &items.Payload, err
 	}
-	defer res.Body.Close()
 
-	body, err := io.ReadAll(res.Body)
+	err = json.Unmarshal(body, &items)
 	if err != nil {
-		return &items, err
+		return &items.Payload, err
 	}
 
-	err = json.Unmarshal(body, &result)
-	if err != nil {
-		return &items, err
-	}
-
-	items = c.convertFromDto(result)
-
-	return &items, nil
+	return &items.Payload, nil
 }
 
-func (c SourcesApiClient) convertFromDto(item SourceDTO) Source {
-	i := Source{
-		ID:      item.ID,
-		Site:    item.Site,
-		Name:    item.Name,
-		Source:  item.Source,
-		Type:    item.Type,
-		Value:   item.Value.String,
-		Enabled: item.Enabled,
-		Url:     item.Url,
-		Tags:    splitTags(item.Tags),
+func (c SourcesApiClient) NewReddit(ctx context.Context, name string, sourceUrl string) error {
+	endpoint := fmt.Sprintf("%v/%v/new/reddit?name=%v&url=%v", c.apiServer, c.routeRoot, name, url.QueryEscape(sourceUrl))
+	res, err := c.rest.Post(ctx, RestArgs{
+		Url:         endpoint,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
+	if err != nil {
+		return err
 	}
-	return i
+
+	if res.StatusCode != 200 {
+		return errors.New("unexpected status code")
+	}
+
+	return nil
+}
+
+func (c SourcesApiClient) NewYouTube(ctx context.Context, Name string, Url string) error {
+	endpoint := fmt.Sprintf("%v/%v/new/youtube?name=%v&url=%v", c.apiServer, c.routeRoot, Name, url.QueryEscape(Url))
+
+	res, err := c.rest.Post(ctx, RestArgs{
+		Url:         endpoint,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != 200 {
+		return errors.New("unexpected status code")
+	}
+
+	return nil
+}
+
+func (c SourcesApiClient) NewTwitch(ctx context.Context, Name string) error {
+	endpoint := fmt.Sprintf("%v/%v/new/twitch?name=%v", c.apiServer, c.routeRoot, Name)
+
+	res, err := c.rest.Post(ctx, RestArgs{
+		Url:         endpoint,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
+	if err != nil {
+		return err
+	}
+
+	if res.StatusCode != 200 {
+		return errors.New("unexpected status code")
+	}
+
+	return nil
+}
+
+func (c SourcesApiClient) Delete(ctx context.Context, ID uuid.UUID) error {
+	endpoint := fmt.Sprintf("%v/%v/%v", c.apiServer, c.routeRoot, ID)
+
+	resp, err := c.rest.Delete(ctx, RestArgs{
+		Url:         endpoint,
+		ContentType: ContentTypeJson,
+		StatusCode:  http.StatusOK,
+	})
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != 200 {
+		return errors.New("invalid status code")
+	}
+
+	return nil
+}
+
+func (c SourcesApiClient) Disable(ctx context.Context, ID uuid.UUID) error {
+	endpoint := fmt.Sprintf("%v/%v/%v/disable", c.apiServer, c.routeRoot, ID)
+
+	resp, err := c.rest.Post(ctx, RestArgs{
+		Url:         endpoint,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != 200 {
+		return errors.New("invalid status code")
+	}
+
+	return nil
+}
+
+func (c SourcesApiClient) Enable(ctx context.Context, ID uuid.UUID) error {
+	endpoint := fmt.Sprintf("%v/%v/%v/enable", c.apiServer, c.routeRoot, ID)
+
+	resp, err := c.rest.Post(ctx, RestArgs{
+		Url:         endpoint,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != 200 {
+		return errors.New("invalid status code")
+	}
+
+	return nil
 }

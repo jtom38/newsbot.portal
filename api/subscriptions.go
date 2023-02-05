@@ -4,136 +4,143 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 
 	"github.com/google/uuid"
 )
 
 type SubscriptionsApiClient struct {
-	endpoint string
-	client   RestClient
+	endpoint   string
+	routeRoute string
+	client     *RestClient
 }
 
-func NewSubscriptionsClient(endpoint string, client *http.Client) SubscriptionsApiClient {
+func NewSubscriptionsClient(endpoint string) SubscriptionsApiClient {
 	c := SubscriptionsApiClient{
-		endpoint: endpoint,
-		client:   NewRestClient(),
+		endpoint:   endpoint,
+		routeRoute: "api/subscriptions",
+		client:     NewRestClient(),
 	}
 	return c
 }
 
-func (c SubscriptionsApiClient) List() (*[]Subscription, error) {
-	var items []Subscription
-
-	uri := fmt.Sprintf("%v/api/subscriptions", c.endpoint)
-	res, err := http.Get(uri)
-	if err != nil {
-		return &items, err
-	}
-
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return &items, err
-	}
-
-	err = json.Unmarshal(body, &items)
-	if err != nil {
-		return &items, err
-	}
-
-	return &items, nil
+type listSubscriptionsResult struct {
+	Message string         `json:"message"`
+	Status  int            `json:"status"`
+	Payload []Subscription `json:"payload"`
 }
 
-func (c SubscriptionsApiClient) GetByDiscordID(ID uuid.UUID) (*[]Subscription, error) {
-	var items []Subscription
+func (c SubscriptionsApiClient) List(ctx context.Context) ([]Subscription, error) {
+	var items listSubscriptionsResult
 
-	uri := fmt.Sprintf("%v/api/subscriptions/byDiscordId?id=%v", c.endpoint, ID.String())
-	res, err := c.client.Get(context.Background(), RestArgs{
-		Url:        uri,
-		StatusCode: 200,
-		Body:       nil,
-	})
-	if err != nil {
-		return &items, err
-	}
+	uri := fmt.Sprintf("%v/%v", c.endpoint, c.routeRoute)
 
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return &items, err
-	}
-
-	err = json.Unmarshal(body, &items)
-	if err != nil {
-		return &items, err
-	}
-
-	return &items, nil
-}
-
-func (c SubscriptionsApiClient) GetBySourceID(ID uuid.UUID) (*[]Subscription, error) {
-	var items []Subscription
-
-	uri := fmt.Sprintf("%v/api/subscriptions/bySourceId?id=%v", c.endpoint, ID.String())
-	res, err := c.client.Get(context.Background(), RestArgs{
-		Url:        uri,
-		StatusCode: 200,
-		Body:       nil,
-	})
-	if err != nil {
-		return &items, err
-	}
-
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return &items, err
-	}
-
-	err = json.Unmarshal(body, &items)
-	if err != nil {
-		return &items, err
-	}
-
-	return &items, nil
-}
-
-func (c SubscriptionsApiClient) New(DiscordID uuid.UUID, SourceID uuid.UUID) error {
-	uri := fmt.Sprintf("%v/api/subscriptions/new/discord/webhook?discordWebHookId=%v&sourceId=%v", c.endpoint, DiscordID.String(), SourceID.String())
-
-	res, err := c.client.Post(context.Background(), RestArgs{
+	body, err := c.client.Get(ctx, RestArgs{
 		Url:         uri,
-		StatusCode:  200,
+		StatusCode:  http.StatusOK,
 		ContentType: ContentTypeJson,
-		Body:        nil,
 	})
 	if err != nil {
-		return err
+		return items.Payload, err
 	}
 
-	defer res.Body.Close()
+	err = json.Unmarshal(body, &items)
+	if err != nil {
+		return items.Payload, err
+	}
 
-	return nil
+	return items.Payload, err
 }
 
-func (c SubscriptionsApiClient) Delete(ID uuid.UUID) error {
-	uri := fmt.Sprintf("%v/api/subscriptions/discord/webhook/delete?id=%v", c.endpoint, ID.String())
+type listSubscriptionsDetailsResult struct {
+	RestPayload
+	Payload []SubscriptionDetails `json:"payload"`
+}
 
-	res, err := c.client.Delete(context.Background(), RestArgs{
-		Url:        uri,
-		StatusCode: 200,
-		Body:       nil,
+// This will collect subscription details on the webhook and source.
+func (c SubscriptionsApiClient) ListDetails(ctx context.Context) ([]SubscriptionDetails, error) {
+	var items listSubscriptionsDetailsResult
+
+	uri := fmt.Sprintf("%v/%v/details", c.endpoint, c.routeRoute)
+
+	body, err := c.client.Get(ctx, RestArgs{
+		Url:         uri,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
 	})
 	if err != nil {
-		return err
+		return items.Payload, err
 	}
 
-	defer res.Body.Close()
+	err = json.Unmarshal(body, &items)
+	if err != nil {
+		return items.Payload, err
+	}
 
-	return nil
+	return items.Payload, err
+}
+
+func (c SubscriptionsApiClient) GetByDiscordID(ctx context.Context, ID uuid.UUID) (*[]Subscription, error) {
+	var items listSubscriptionsResult
+
+	uri := fmt.Sprintf("%v/%v/by/discordId?id=%v", c.endpoint, c.routeRoute, ID.String())
+	body, err := c.client.Get(context.Background(), RestArgs{
+		Url:         uri,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
+	if err != nil {
+		return &items.Payload, err
+	}
+
+	err = json.Unmarshal(body, &items)
+	if err != nil {
+		return &items.Payload, err
+	}
+
+	return &items.Payload, err
+}
+
+func (c SubscriptionsApiClient) GetBySourceID(ctx context.Context, ID uuid.UUID) (*[]Subscription, error) {
+	var items listSubscriptionsResult
+
+	uri := fmt.Sprintf("%v/%v/by/SourceId?id=%v", c.endpoint, c.routeRoute, ID.String())
+	body, err := c.client.Get(ctx, RestArgs{
+		Url:         uri,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
+	if err != nil {
+		return &items.Payload, err
+	}
+
+	err = json.Unmarshal(body, &items)
+	if err != nil {
+		return &items.Payload, err
+	}
+
+	return &items.Payload, err
+}
+
+func (c SubscriptionsApiClient) New(ctx context.Context, DiscordID uuid.UUID, SourceID uuid.UUID) error {
+	uri := fmt.Sprintf("%v/%v/discord/webhook/new?discordWebHookId=%v&sourceId=%v", c.endpoint, c.routeRoute, DiscordID.String(), SourceID.String())
+
+	_, err := c.client.Post(ctx, RestArgs{
+		Url:         uri,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
+
+	return err
+}
+
+func (c SubscriptionsApiClient) Delete(ctx context.Context, ID uuid.UUID) error {
+	uri := fmt.Sprintf("%v/%v/discord/webhook/delete?id=%v", c.endpoint, c.routeRoute, ID.String())
+
+	_, err := c.client.Delete(ctx, RestArgs{
+		Url:        uri,
+		StatusCode: http.StatusOK,
+	})
+
+	return err
 }
