@@ -125,7 +125,7 @@ func (s *SettingsRouter) EnableSourceById(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = s._api.Sources().Enable(uid)
+	err = s._api.Sources().Enable(r.Context(), uid)
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageSettingsUpdated.Execute(w, param)
@@ -169,7 +169,7 @@ func (s *SettingsRouter) DisableSourceById(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = s._api.Sources().Disable(uid)
+	err = s._api.Sources().Disable(r.Context(), uid)
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageSettingsUpdated.Execute(w, param)
@@ -201,14 +201,14 @@ func (s SettingsRouter) ListReddit(w http.ResponseWriter, r *http.Request) {
 		SourceName: RedditSourceName,
 	}
 
-	items, err := s._api.Sources().ListBySource(RedditSourceName)
+	items, err := s._api.Sources().ListBySource(r.Context(), RedditSourceName)
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageSettingSourcesList.Execute(w, param)
 		return
 	}
 
-	param.Items = &items.Payload
+	param.Items = items
 
 	if pageSettingSourcesList.Execute(w, param); err != nil {
 		log.Print(err)
@@ -222,14 +222,14 @@ func (s SettingsRouter) ListYoutube(w http.ResponseWriter, r *http.Request) {
 		SourceName: YoutubeSourceName,
 	}
 
-	items, err := s._api.Sources().ListBySource(YoutubeSourceName)
+	items, err := s._api.Sources().ListBySource(r.Context(), YoutubeSourceName)
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageSettingSourcesList.Execute(w, param)
 		return
 	}
 
-	param.Items = &items.Payload
+	param.Items = items
 
 	if pageSettingSourcesList.Execute(w, param); err != nil {
 		log.Print(err)
@@ -243,14 +243,14 @@ func (s SettingsRouter) ListTwitch(w http.ResponseWriter, r *http.Request) {
 		SourceName: TwitchSourceName,
 	}
 
-	items, err := s._api.Sources().ListBySource(TwitchSourceName)
+	items, err := s._api.Sources().ListBySource(r.Context(), TwitchSourceName)
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageSettingSourcesList.Execute(w, param)
 		return
 	}
 
-	param.Items = &items.Payload
+	param.Items = items
 
 	if pageSettingSourcesList.Execute(w, param); err != nil {
 		log.Print(err)
@@ -264,14 +264,14 @@ func (s SettingsRouter) ListFfxiv(w http.ResponseWriter, r *http.Request) {
 		SourceName: FFXIVSourceName,
 	}
 
-	items, err := s._api.Sources().ListBySource(FFXIVSourceName)
+	items, err := s._api.Sources().ListBySource(r.Context(), FFXIVSourceName)
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageSettingSourcesList.Execute(w, param)
 		return
 	}
 
-	param.Items = &items.Payload
+	param.Items = items
 
 	if pageSettingSourcesList.Execute(w, param); err != nil {
 		log.Print(err)
@@ -319,7 +319,7 @@ func (s SettingsRouter) NewRedditPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	uri := fmt.Sprintf("https://reddit.com/r/%v", name)
-	err = s._api.Sources().NewReddit(name, uri)
+	err = s._api.Sources().NewReddit(r.Context(), name, uri)
 	if err != nil {
 		param.Error = err.Error()
 		pageError.Execute(w, param)
@@ -368,7 +368,7 @@ func (s SettingsRouter) NewTwitchPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s._api.Sources().NewTwitch(name)
+	err = s._api.Sources().NewTwitch(r.Context(), name)
 	if err != nil {
 		param.Error = err.Error()
 		pageError.Execute(w, param)
@@ -424,7 +424,7 @@ func (s SettingsRouter) NewYouTubePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s._api.Sources().NewYouTube(name, url)
+	err = s._api.Sources().NewYouTube(r.Context(), name, url)
 	if err != nil {
 		param.Error = err.Error()
 		pageError.Execute(w, param)
@@ -445,7 +445,7 @@ type ListOutputDiscordWebHooks struct {
 	Title    string
 	Subtitle string
 	Errors   []string
-	Items    *[]api.Discordwebhook
+	Items    *[]api.DiscordWebHooks
 }
 
 func (s SettingsRouter) ListDiscordWebHooks(w http.ResponseWriter, r *http.Request) {
@@ -454,7 +454,7 @@ func (s SettingsRouter) ListDiscordWebHooks(w http.ResponseWriter, r *http.Reque
 		Subtitle: "Here you can see the available sources to pick from",
 	}
 
-	items, err := s._api.Outputs().DiscordWebHook().List()
+	items, err := s._api.Outputs().DiscordWebHook().List(r.Context())
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 	}
@@ -510,7 +510,7 @@ func (s SettingsRouter) NewDiscordWebhookPost(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = s._api.Outputs().DiscordWebHook().New(server, channel, url)
+	err = s._api.Outputs().DiscordWebHook().New(r.Context(), server, channel, url)
 	if err != nil {
 		param.Error = err.Error()
 		pageError.Execute(w, param)
@@ -554,7 +554,7 @@ func (s SettingsRouter) DisableDiscordWebhook(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = s._api.Outputs().DiscordWebHook().Disable(uid)
+	err = s._api.Outputs().DiscordWebHook().Disable(r.Context(), uid)
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageSettingsUpdated.Execute(w, param)
@@ -597,7 +597,7 @@ func (s SettingsRouter) EnableDiscordWebhook(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	err = s._api.Outputs().DiscordWebHook().Enable(uid)
+	err = s._api.Outputs().DiscordWebHook().Enable(r.Context(), uid)
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageSettingsUpdated.Execute(w, param)
@@ -624,7 +624,7 @@ type ListSubscriptionsParam struct {
 type ListSubscriptionsDetailsParam struct {
 	Subscription api.Subscription
 	Source       api.Source
-	Output       api.Discordwebhook
+	Output       api.DiscordWebHooks
 }
 
 func (s SettingsRouter) ListDiscordWebHookSubscriptions(w http.ResponseWriter, r *http.Request) {
@@ -634,21 +634,21 @@ func (s SettingsRouter) ListDiscordWebHookSubscriptions(w http.ResponseWriter, r
 		NewHref:  "/settings/subscriptions/discord/webhooks/new",
 	}
 
-	subs, err := s._api.Subscriptions().List()
+	subs, err := s._api.Subscriptions().List(r.Context())
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 	}
 
 	var details []ListSubscriptionsDetailsParam
 
-	for index, sub := range *subs {
-		sourceDetails, err := s._api.Sources().GetById(sub.Sourceid)
+	for index, sub := range subs {
+		sourceDetails, err := s._api.Sources().GetById(r.Context(), sub.SourceId)
 		if err != nil {
 			msg := fmt.Sprintf("Failed to get source details on ID '%v' at index '%v'", sub.ID.String(), index)
 			param.Errors = append(param.Errors, msg)
 		}
 
-		outputDetails, err := s._api.Outputs().DiscordWebHook().Get(sub.Discordwebhookid)
+		outputDetails, err := s._api.Outputs().DiscordWebHook().Get(r.Context(), sub.DiscordWebhookId)
 		if err != nil {
 			msg := fmt.Sprintf("Failed to get output details on ID '%v' at index '%v'", sub.ID.String(), index)
 			param.Errors = append(param.Errors, msg)
@@ -656,12 +656,11 @@ func (s SettingsRouter) ListDiscordWebHookSubscriptions(w http.ResponseWriter, r
 
 		d := ListSubscriptionsDetailsParam{
 			Subscription: sub,
-			Source:       sourceDetails.Payload,
+			Source:       *sourceDetails,
 			Output:       *outputDetails,
 		}
 
 		details = append(details, d)
-
 	}
 
 	param.Items = details
@@ -675,7 +674,7 @@ type NewDiscordWebHookSubscriptionFormParam struct {
 	Title    string
 	Subtitle string
 	Errors   []string
-	Outputs  []api.Discordwebhook
+	Outputs  []api.DiscordWebHooks
 	Sources  []api.Source
 }
 
@@ -685,18 +684,18 @@ func (s SettingsRouter) NewDiscordWebHookSubscriptionForm(w http.ResponseWriter,
 		Title: "New Discord Webhook Subscription",
 	}
 
-	outputs, err := s._api.Outputs().DiscordWebHook().List()
+	outputs, err := s._api.Outputs().DiscordWebHook().List(r.Context())
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 	}
 
-	sources, err := s._api.Sources().List()
+	sources, err := s._api.Sources().List(r.Context())
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 	}
 
 	param.Outputs = *outputs
-	param.Sources = sources.Payload
+	param.Sources = *sources
 
 	if pageSettingsSubscriptionsForm.Execute(w, param); err != nil {
 		log.Print(err)
@@ -724,7 +723,7 @@ func (s SettingsRouter) NewDiscordWebHookSubscriptionPost(w http.ResponseWriter,
 	}
 
 	stringSplit := strings.Split(source, " // ")
-	sourceRecord, err := s._api.Sources().GetBySourceAndName(strings.TrimSpace(stringSplit[0]), strings.TrimSpace(stringSplit[1]))
+	sourceRecord, err := s._api.Sources().GetBySourceAndName(r.Context(), strings.TrimSpace(stringSplit[0]), strings.TrimSpace(stringSplit[1]))
 	if err != nil {
 		param.Errors = append(param.Errors, "The ID value is missing.")
 		pageError.Execute(w, param)
@@ -740,14 +739,14 @@ func (s SettingsRouter) NewDiscordWebHookSubscriptionPost(w http.ResponseWriter,
 	}
 
 	outputSplit := strings.Split(DiscordWebHook, " // ")
-	outputRecord, err := s._api.Outputs().DiscordWebHook().GetByServerAndChannel(strings.TrimSpace(outputSplit[0]), strings.TrimSpace(outputSplit[1]))
+	outputRecord, err := s._api.Outputs().DiscordWebHook().GetByServerAndChannel(r.Context(), strings.TrimSpace(outputSplit[0]), strings.TrimSpace(outputSplit[1]))
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageError.Execute(w, param)
 		return
 	}
 
-	err = s._api.Subscriptions().New(outputRecord[0].ID, sourceRecord.Payload.ID)
+	err = s._api.Subscriptions().New(r.Context(), outputRecord[0].ID, sourceRecord.ID)
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageError.Execute(w, param)
@@ -787,7 +786,7 @@ func (s SettingsRouter) DeleteDiscordWebHookSubscription(w http.ResponseWriter, 
 		return
 	}
 
-	err = s._api.Subscriptions().Delete(uid)
+	err = s._api.Subscriptions().Delete(r.Context(), uid)
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageError.Execute(w, param)

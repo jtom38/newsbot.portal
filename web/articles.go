@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -84,7 +85,7 @@ func (s *HttpServer) ArticleList(w http.ResponseWriter, r *http.Request) {
 		Subtitle: "Placeholder",
 	}
 
-	items, err := s.api.Articles().List()
+	items, err := s.api.Articles().List(r.Context(), api.ArticlesListParam{})
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageArticlesList.Execute(w, param)
@@ -92,8 +93,8 @@ func (s *HttpServer) ArticleList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var details []ListArticlesDetailsParam
-	for _, item := range *items {
-		source, err := s.api.Sources().GetById(item.Sourceid)
+	for _, item := range items {
+		source, err := s.api.Sources().GetById(r.Context(), item.SourceID)
 		if err != nil {
 			//log.Printf("Article '%v', has a invalid SourceID", item.ID)
 		}
@@ -101,7 +102,7 @@ func (s *HttpServer) ArticleList(w http.ResponseWriter, r *http.Request) {
 		s := *source
 
 		d := ListArticlesDetailsParam{
-			Source:  s.Payload,
+			Source:  s,
 			Article: item,
 		}
 		details = append(details, d)
@@ -117,7 +118,7 @@ func (s *HttpServer) ArticleListCards(w http.ResponseWriter, r *http.Request) {
 		Subtitle: "Placeholder",
 	}
 
-	items, err := s.api.Articles().List()
+	items, err := s.api.Articles().List(r.Context(), api.ArticlesListParam{})
 	if err != nil {
 		errorPage.Execute(w, ErrorParam{
 			Title: "This didn't load correctly...",
@@ -127,8 +128,8 @@ func (s *HttpServer) ArticleListCards(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var details []ListArticlesDetailsParam
-	for _, item := range *items {
-		source, err := s.api.Sources().GetById(item.Sourceid)
+	for _, item := range items {
+		source, err := s.api.Sources().GetById(r.Context(), item.SourceID)
 		if err != nil {
 			//log.Printf("Article '%v', has a invalid SourceID", item.ID)
 		}
@@ -136,7 +137,7 @@ func (s *HttpServer) ArticleListCards(w http.ResponseWriter, r *http.Request) {
 		s := *source
 
 		d := ListArticlesDetailsParam{
-			Source:  s.Payload,
+			Source:  s,
 			Article: item,
 		}
 		details = append(details, d)
@@ -168,14 +169,14 @@ func (s *HttpServer) ListArticleSources(w http.ResponseWriter, r *http.Request) 
 
 	var activeItems []api.Source
 
-	records, err := s.api.Sources().List()
+	records, err := s.api.Sources().List(r.Context())
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageArticlesListSources.Execute(w, param)
 		return
 	}
 
-	for _, item := range records.Payload {
+	for _, item := range *records {
 		if !item.Enabled {
 			continue
 		}
@@ -190,13 +191,13 @@ func (s *HttpServer) ListArticleSources(w http.ResponseWriter, r *http.Request) 
 func (s *HttpServer) getArticlesBySourceId(ID uuid.UUID) ([]ListArticlesDetailsParam, error) {
 	var details []ListArticlesDetailsParam
 
-	items, err := s.api.Articles().ListBySourceId(ID)
+	items, err := s.api.Articles().ListBySourceId(context.TODO(), ID, 0)
 	if err != nil {
 		return details, err
 	}
 
 	for _, item := range *items {
-		source, err := s.api.Sources().GetById(item.Sourceid)
+		source, err := s.api.Sources().GetById(context.TODO(), item.SourceID)
 		if err != nil {
 			log.Printf("Article '%v', has a invalid SourceID", item.ID)
 		}
@@ -204,7 +205,7 @@ func (s *HttpServer) getArticlesBySourceId(ID uuid.UUID) ([]ListArticlesDetailsP
 		s := *source
 
 		d := ListArticlesDetailsParam{
-			Source:  s.Payload,
+			Source:  s,
 			Article: item,
 		}
 
@@ -285,7 +286,7 @@ func (s *HttpServer) DisplayArticleById(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	article, err := s.api.Articles().Get(uuid)
+	article, err := s.api.Articles().Get(r.Context(), uuid)
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageArticlesDisplay.Execute(w, param)
@@ -294,14 +295,14 @@ func (s *HttpServer) DisplayArticleById(w http.ResponseWriter, r *http.Request) 
 	param.Article = article
 	param.Title = article.Title
 
-	source, err := s.api.Sources().GetById(article.Sourceid)
+	source, err := s.api.Sources().GetById(r.Context(), article.SourceID)
 	if err != nil {
 		param.Errors = append(param.Errors, err.Error())
 		pageArticlesDisplay.Execute(w, param)
 		return
 	}
 
-	param.Source = &source.Payload
-	param.Subtitle = fmt.Sprintf("%v - %v", strings.ToUpper(source.Payload.Name), strings.ToUpper(source.Payload.Source))
+	param.Source = source
+	param.Subtitle = fmt.Sprintf("%v - %v", strings.ToUpper(source.Name), strings.ToUpper(source.Source))
 	pageArticlesDisplay.Execute(w, param)
 }
