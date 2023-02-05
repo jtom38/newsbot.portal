@@ -19,7 +19,6 @@ type ArticlesApi interface {
 	ListBySourceId(ctx context.Context, ID uuid.UUID, page int) (*[]Article, error)
 }
 
-
 type SourcesApi interface {
 	List(ctx context.Context) (*[]Source, error)
 	ListBySource(ctx context.Context, value string) (*[]Source, error)
@@ -30,7 +29,7 @@ type SourcesApi interface {
 	NewReddit(ctx context.Context, name string, sourceUrl string) error
 	NewYouTube(ctx context.Context, name string, url string) error
 	NewTwitch(ctx context.Context, Name string) error
-	Disable(ctx context.Context ,ID uuid.UUID) error
+	Disable(ctx context.Context, ID uuid.UUID) error
 	Delete(ctx context.Context, ID uuid.UUID) error
 	Enable(ctx context.Context, ID uuid.UUID) error
 }

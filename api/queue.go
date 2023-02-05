@@ -11,7 +11,7 @@ type QueueClient struct {
 	apiServer string
 	routeRoot string
 
-	rest   RestClient
+	rest RestClient
 }
 
 func NewQueueClient(serverAddress string) QueueClient {
