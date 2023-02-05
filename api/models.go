@@ -6,44 +6,54 @@ import (
 	"github.com/google/uuid"
 )
 
-type NullString struct {
-	String string `json:"string"`
-	Valid  bool   `json:"valid"`
-}
-
-// This type contains the Article and source details together.
-type ArticleDetails struct {
-	Article Article
-	Source  Source
+type RestPayload struct {
+	Status  int    `json:"status"`
+	Message string `json:"message"`
 }
 
 type Article struct {
-	ID          uuid.UUID
-	Sourceid    uuid.UUID
-	Tags        []string
-	Title       string
-	Url         string
-	Pubdate     time.Time
-	Video       string
-	Videoheight int32
-	Videowidth  int32
-	Thumbnail   string
-	Description string
-	Authorname  string
-	Authorimage string
+	ID          uuid.UUID `json:"id"`
+	SourceID    uuid.UUID `json:"sourceid"`
+	Tags        []string  `json:"tags"`
+	Title       string    `json:"title"`
+	Url         string    `json:"url"`
+	Pubdate     time.Time `json:"pubdate"`
+	Video       string    `json:"video"`
+	VideoHeight int32     `json:"videoHeight"`
+	VideoWidth  int32     `json:"videoWidth"`
+	Thumbnail   string    `json:"thumbnail"`
+	Description string    `json:"description"`
+	AuthorName  string    `json:"authorName"`
+	AuthorImage string    `json:"authorImage"`
+}
+
+type ArticleDetails struct {
+	ID          uuid.UUID `json:"id"`
+	Source      Source    `json:"source"`
+	Tags        []string  `json:"tags"`
+	Title       string    `json:"title"`
+	Url         string    `json:"url"`
+	Pubdate     time.Time `json:"pubdate"`
+	Video       string    `json:"video"`
+	VideoHeight int32     `json:"videoHeight"`
+	VideoWidth  int32     `json:"videoWidth"`
+	Thumbnail   string    `json:"thumbnail"`
+	Description string    `json:"description"`
+	AuthorName  string    `json:"authorName"`
+	AuthorImage string    `json:"authorImage"`
+}
+
+type DiscordWebHooks struct {
+	ID      uuid.UUID `json:"ID"`
+	Url     string    `json:"url"`
+	Server  string    `json:"server"`
+	Channel string    `json:"channel"`
+	Enabled bool      `json:"enabled"`
 }
 
 type Discordqueue struct {
 	ID        uuid.UUID
 	Articleid uuid.UUID
-}
-
-type Discordwebhook struct {
-	ID      uuid.UUID
-	Url     string
-	Server  string
-	Channel string
-	Enabled bool
 }
 
 type Icon struct {
@@ -56,24 +66,30 @@ type Setting struct {
 	ID      uuid.UUID
 	Key     string
 	Value   string
-	Options NullString
+	Options string
 }
 
 type Source struct {
-	ID      uuid.UUID
-	Site    string
-	Name    string
-	Source  string
-	Type    string
-	Value   string
-	Enabled bool
-	Url     string
-	Tags    []string
-	Deleted bool
+	ID      uuid.UUID `json:"id"`
+	Site    string    `json:"site"`
+	Name    string    `json:"name"`
+	Source  string    `json:"source"`
+	Type    string    `json:"type"`
+	Value   string    `json:"value"`
+	Enabled bool      `json:"enabled"`
+	Url     string    `json:"url"`
+	Tags    []string  `json:"tags"`
+	Deleted bool      `json:"deleted"`
 }
 
 type Subscription struct {
 	ID               uuid.UUID
-	Discordwebhookid uuid.UUID
-	Sourceid         uuid.UUID
+	DiscordWebhookId uuid.UUID
+	SourceId         uuid.UUID
+}
+
+type SubscriptionDetails struct {
+	ID             uuid.UUID
+	Source         Source
+	DiscordWebHook DiscordWebHooks
 }

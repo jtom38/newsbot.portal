@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -20,8 +21,8 @@ type RestClient struct {
 	client http.Client
 }
 
-func NewRestClient() RestClient {
-	return RestClient{
+func NewRestClient() *RestClient {
+	return &RestClient{
 		client: http.Client{},
 	}
 }
@@ -31,17 +32,29 @@ type RestArgs struct {
 	StatusCode  int
 	ContentType string
 	Body        interface{}
+	//Model       interface{}
 }
 
-func (c RestClient) Get(ctx context.Context, Args RestArgs) (*http.Response, error) {
+func (c RestClient) Get(ctx context.Context, Args RestArgs) ([]byte, error) {
+	var res []byte
 	var r *http.Response
 
 	r, err := c.request(ctx, http.MethodGet, Args)
 	if err != nil {
-		return r, err
+		return res, err
+	}
+	defer r.Body.Close()
+
+	res, err = io.ReadAll(r.Body)
+	if err != nil {
+		return res, err
 	}
 
-	return r, nil
+	if r.StatusCode != Args.StatusCode {
+		return res, fmt.Errorf(string(res))
+	}
+
+	return res, nil
 }
 
 func (c RestClient) Post(ctx context.Context, Args RestArgs) (*http.Response, error) {

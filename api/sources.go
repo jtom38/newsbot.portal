@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 
@@ -16,139 +15,122 @@ type SourcesApiClient struct {
 	apiServer string
 	routeRoot string
 
-	client *http.Client
-	rest   RestClient
+	rest RestClient
 }
 
-func NewSourcesApiClient(serverAddress string, client *http.Client) SourcesApi {
+func NewSourcesApiClient(serverAddress string) SourcesApiClient {
 	c := SourcesApiClient{
 		apiServer: serverAddress,
-		routeRoot: "api/sources/",
-		client:    client,
+		routeRoot: "api/sources",
 	}
 	return c
 }
 
-type ListSourcesResult struct {
+type listSourcesResult struct {
 	Message string   `json:"message"`
 	Status  int      `json:"status"`
 	Payload []Source `json:"payload"`
 }
 
-func (c SourcesApiClient) List() (*ListSourcesResult, error) {
-	var items ListSourcesResult
+func (c SourcesApiClient) List(ctx context.Context) (*[]Source, error) {
+	var items listSourcesResult
 
 	uri := fmt.Sprintf("%v/%v", c.apiServer, c.routeRoot)
-	res, err := http.Get(uri)
+	data, err := c.rest.Get(ctx, RestArgs{
+		Url:         uri,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
 	if err != nil {
-		return &items, err
-	}
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return &items, err
+		return &items.Payload, err
 	}
 
-	err = json.Unmarshal(body, &items)
+	err = json.Unmarshal(data, &items)
 	if err != nil {
-		return &items, err
+		return &items.Payload, err
 	}
 
-	//for _, i := range result {
-	//	items = append(items, c.convertFromDto(i))
-	//}
-
-	return &items, nil
+	return &items.Payload, nil
 }
 
-func (c SourcesApiClient) ListBySource(value string) (*ListSourcesResult, error) {
-	var items ListSourcesResult
+func (c SourcesApiClient) ListBySource(ctx context.Context, value string) (*[]Source, error) {
+	var items listSourcesResult
 
 	uri := fmt.Sprintf("%v/%v/by/source?source=%v", c.apiServer, c.routeRoot, value)
-	res, err := http.Get(uri)
-	if err != nil {
-		return &items, err
-	}
-	defer res.Body.Close()
 
-	body, err := io.ReadAll(res.Body)
+	data, err := c.rest.Get(ctx, RestArgs{
+		Url:         uri,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
 	if err != nil {
-		return &items, err
-	}
-
-	err = json.Unmarshal(body, &items)
-	if err != nil {
-		return &items, err
+		return &items.Payload, err
 	}
 
-	//for _, i := range result {
-	//	items = append(items, c.convertFromDto(i))
-	//}
+	err = json.Unmarshal(data, &items)
+	if err != nil {
+		return &items.Payload, err
+	}
 
-	return &items, nil
+	return &items.Payload, nil
 }
 
-type SingleSourcesResult struct {
-	Message string   `json:"message"`
-	Status  int      `json:"status"`
+type singleSourcesResult struct {
+	Message string `json:"message"`
+	Status  int    `json:"status"`
 	Payload Source `json:"payload"`
 }
 
-func (c SourcesApiClient) GetById(ID uuid.UUID) (*SingleSourcesResult, error) {
-	var items SingleSourcesResult
+func (c SourcesApiClient) GetById(ctx context.Context, ID uuid.UUID) (*Source, error) {
+	var items singleSourcesResult
 
 	uri := fmt.Sprintf("%v/%v/%v", c.apiServer, c.routeRoot, ID)
-	res, err := http.Get(uri)
+	body, err := c.rest.Get(ctx, RestArgs{
+		Url:         uri,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
 	if err != nil {
-		return &items, err
-	}
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return &items, err
+		return &items.Payload, err
 	}
 
 	err = json.Unmarshal(body, &items)
 	if err != nil {
-		return &items, err
+		return &items.Payload, err
 	}
 
-	return &items, nil
+	return &items.Payload, nil
 }
 
-func (c SourcesApiClient) GetBySourceAndName(SourceName string, Name string) (*SingleSourcesResult, error) {
-	var items SingleSourcesResult
+func (c SourcesApiClient) GetBySourceAndName(ctx context.Context, SourceName string, Name string) (*Source, error) {
+	var items singleSourcesResult
 
 	uri := fmt.Sprintf("%v/%v/by/sourceAndName?source=%v&name=%v", c.apiServer, c.routeRoot, SourceName, Name)
 
-	res, err := c.rest.Get(context.Background(), RestArgs{
-		Url:        uri,
-		StatusCode: 200,
+	body, err := c.rest.Get(ctx, RestArgs{
+		Url:         uri,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
 	})
 	if err != nil {
-		return &items, err
-	}
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return &items, err
+		return &items.Payload, err
 	}
 
 	err = json.Unmarshal(body, &items)
 	if err != nil {
-		return &items, err
+		return &items.Payload, err
 	}
 
-	return &items, nil
+	return &items.Payload, nil
 }
 
-
-func (c SourcesApiClient) NewReddit(name string, sourceUrl string) error {
+func (c SourcesApiClient) NewReddit(ctx context.Context, name string, sourceUrl string) error {
 	endpoint := fmt.Sprintf("%v/%v/new/reddit?name=%v&url=%v", c.apiServer, c.routeRoot, name, url.QueryEscape(sourceUrl))
-	res, err := http.Post(endpoint, "application/json", nil)
+	res, err := c.rest.Post(ctx, RestArgs{
+		Url:         endpoint,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
 	if err != nil {
 		return err
 	}
@@ -160,15 +142,14 @@ func (c SourcesApiClient) NewReddit(name string, sourceUrl string) error {
 	return nil
 }
 
-func (c SourcesApiClient) NewYouTube(Name string, Url string) error {
+func (c SourcesApiClient) NewYouTube(ctx context.Context, Name string, Url string) error {
 	endpoint := fmt.Sprintf("%v/%v/new/youtube?name=%v&url=%v", c.apiServer, c.routeRoot, Name, url.QueryEscape(Url))
-	req, err := http.NewRequest("POST", endpoint, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
 
-	res, err := c.client.Do(req)
+	res, err := c.rest.Post(ctx, RestArgs{
+		Url:         endpoint,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
 	if err != nil {
 		return err
 	}
@@ -180,15 +161,14 @@ func (c SourcesApiClient) NewYouTube(Name string, Url string) error {
 	return nil
 }
 
-func (c SourcesApiClient) NewTwitch(Name string) error {
+func (c SourcesApiClient) NewTwitch(ctx context.Context, Name string) error {
 	endpoint := fmt.Sprintf("%v/%v/new/twitch?name=%v", c.apiServer, c.routeRoot, Name)
-	req, err := http.NewRequest("POST", endpoint, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
 
-	res, err := c.client.Do(req)
+	res, err := c.rest.Post(ctx, RestArgs{
+		Url:         endpoint,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
 	if err != nil {
 		return err
 	}
@@ -200,16 +180,14 @@ func (c SourcesApiClient) NewTwitch(Name string) error {
 	return nil
 }
 
-func (c SourcesApiClient) Delete(ID uuid.UUID) error {
+func (c SourcesApiClient) Delete(ctx context.Context, ID uuid.UUID) error {
 	endpoint := fmt.Sprintf("%v/%v/%v", c.apiServer, c.routeRoot, ID)
-	req, err := http.NewRequest("DELETE", endpoint, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
 
-	client := http.Client{}
-	resp, err := client.Do(req)
+	resp, err := c.rest.Delete(ctx, RestArgs{
+		Url:         endpoint,
+		ContentType: ContentTypeJson,
+		StatusCode:  http.StatusOK,
+	})
 	if err != nil {
 		return err
 	}
@@ -221,15 +199,14 @@ func (c SourcesApiClient) Delete(ID uuid.UUID) error {
 	return nil
 }
 
-func (c SourcesApiClient) Disable(ID uuid.UUID) error {
+func (c SourcesApiClient) Disable(ctx context.Context, ID uuid.UUID) error {
 	endpoint := fmt.Sprintf("%v/%v/%v/disable", c.apiServer, c.routeRoot, ID)
-	req, err := http.NewRequest("POST", endpoint, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := c.client.Do(req)
+	resp, err := c.rest.Post(ctx, RestArgs{
+		Url:         endpoint,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
 	if err != nil {
 		return err
 	}
@@ -241,16 +218,14 @@ func (c SourcesApiClient) Disable(ID uuid.UUID) error {
 	return nil
 }
 
-func (c SourcesApiClient) Enable(ID uuid.UUID) error {
+func (c SourcesApiClient) Enable(ctx context.Context, ID uuid.UUID) error {
 	endpoint := fmt.Sprintf("%v/%v/%v/enable", c.apiServer, c.routeRoot, ID)
 
-	req, err := http.NewRequest("POST", endpoint, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := c.client.Do(req)
+	resp, err := c.rest.Post(ctx, RestArgs{
+		Url:         endpoint,
+		StatusCode:  http.StatusOK,
+		ContentType: ContentTypeJson,
+	})
 	if err != nil {
 		return err
 	}

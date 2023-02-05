@@ -1,7 +1,5 @@
 package api
 
-import "net/http"
-
 type ApiClient struct {
 	endpoint string
 
@@ -11,15 +9,15 @@ type ApiClient struct {
 	_subscriptions SubscriptionsApi
 }
 
-func New(Endpoint string) CollectorApi {
-	client := http.Client{}
+func New(Endpoint string) ApiClient {
+	//client := http.Client{}
 	c := ApiClient{
 		endpoint: Endpoint,
 
-		_articles:      NewArticlesClient(Endpoint, &client),
-		_sources:       NewSourcesApiClient(Endpoint, &client),
-		_outputs:       NewOutputsApiClient(Endpoint, &client),
-		_subscriptions: NewSubscriptionsClient(Endpoint, &client),
+		_articles:      NewArticlesClient(Endpoint),
+		_sources:       NewSourcesApiClient(Endpoint),
+		_outputs:       NewOutputsApiClient(Endpoint),
+		_subscriptions: NewSubscriptionsClient(Endpoint),
 	}
 
 	return c
